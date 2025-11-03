@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Minor polish for buttons */
+button { @apply transition-opacity active:translate-y-px; }
