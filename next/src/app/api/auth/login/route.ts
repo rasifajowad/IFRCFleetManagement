@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/db'
 import { buildSessionCookie, createToken, verifyPassword } from '@/lib/auth'
+import { ROUTES } from '@/constants/routes'
 
 export const runtime = 'nodejs'
 
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
       status: 302,
       headers: {
         'Set-Cookie': buildSessionCookie(token),
-        'Location': user.role === 'officer' ? '/admin' : user.role === 'driver' ? '/my-trips' : '/my-requests'
+        'Location': user.role === 'officer' ? ROUTES.admin : user.role === 'driver' ? ROUTES.myTrips : ROUTES.myRequests
       }
     })
   } catch (e) {

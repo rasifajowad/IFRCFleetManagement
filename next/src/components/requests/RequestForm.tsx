@@ -1,14 +1,12 @@
 import { createRequest } from '@/app/actions'
-import { Select } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { FieldGroup, FieldSet, Field, FieldLabel, FieldDescription, FieldLegend } from '@/components/ui/field'
 import DateTimeRange from '@/components/requests/DateTimeRange'
 
-export default function RequestForm({ staff, vehicles, meId, defaultStart, defaultEnd }: {
+export default function RequestForm({ staff, meId, defaultStart, defaultEnd }: {
   staff: { id: string, name: string }[]
-  vehicles: { id: string, name: string, plate: string }[]
   meId: string
   defaultStart: string
   defaultEnd: string
@@ -28,24 +26,25 @@ export default function RequestForm({ staff, vehicles, meId, defaultStart, defau
         <FieldSet>
           <FieldLegend>Request Details</FieldLegend>
           <Field>
-            <FieldLabel>Preferred Vehicle</FieldLabel>
-            <Select key={`pref-${vehicles.length}`} name="preferredVehicleId">
-              <option value="">Any</option>
-              {vehicles.map(v => (
-                <option key={v.id} value={v.id}>{v.name} - {v.plate}</option>
-              ))}
-            </Select>
+            <FieldLabel>Start Location</FieldLabel>
+            <Input name="startLocation" placeholder="e.g. Office, Warehouse, or address" required />
+            <FieldDescription>Where the trip starts.</FieldDescription>
+          </Field>
+          <Field>
+            <FieldLabel>Destination</FieldLabel>
+            <Input name="destination" placeholder="e.g. Site A, Airport, or address" required />
+            <FieldDescription>Where you need to go.</FieldDescription>
           </Field>
           <Field>
             <FieldLabel>Purpose</FieldLabel>
-            <Input name="purpose" placeholder="e.g. Site visit, meeting" />
+            <Input name="purpose" placeholder="e.g. Site visit, meeting" required />
             <FieldDescription>Brief reason for the trip.</FieldDescription>
           </Field>
           <DateTimeRange defaultStart={defaultStart} defaultEnd={defaultEnd} />
           <Field>
             <FieldLabel>Notes</FieldLabel>
             <Textarea name="notes" rows={3} />
-            <FieldDescription>Optional. Any extra context (destinations, stops, etc.).</FieldDescription>
+            <FieldDescription>Optional. Any extra context.</FieldDescription>
           </Field>
         </FieldSet>
         <Field>

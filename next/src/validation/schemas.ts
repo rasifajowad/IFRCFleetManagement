@@ -9,7 +9,8 @@ const zDate = z.preprocess((v) => {
 export const CreateRequestSchema = z.object({
   requesterId: z.string().trim().min(1),
   purpose: z.string().trim().min(1),
-  preferredVehicleId: z.string().trim().optional().transform((s) => (s && s.length > 0 ? s : undefined)),
+  startLocation: z.string().trim().min(1, 'start location required'),
+  destination: z.string().trim().min(1, 'destination required'),
   startTime: zDate,
   endTime: zDate,
   notes: z.string().trim().default(''),

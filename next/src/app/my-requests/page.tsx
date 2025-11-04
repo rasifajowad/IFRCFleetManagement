@@ -21,7 +21,6 @@ export default async function Page() {
     )
   }
   const staff = await prisma.user.findMany({ orderBy: { name: 'asc' } })
-  const vehicles = await prisma.vehicle.findMany({ orderBy: { name: 'asc' } })
 
   const now = new Date()
   const fmt = (d: Date) => new Date(d).toISOString().slice(0,16)
@@ -33,7 +32,7 @@ export default async function Page() {
       <SectionHeader title="New Request" subtitle="Request a vehicle and pickup/return time" />
       <Card>
         <CardContent className="p-4">
-          <RequestForm staff={staff} vehicles={vehicles} meId={me.id} defaultStart={fmt(start)} defaultEnd={fmt(end)} />
+          <RequestForm staff={staff} meId={me.id} defaultStart={fmt(start)} defaultEnd={fmt(end)} />
         </CardContent>
       </Card>
     </main>

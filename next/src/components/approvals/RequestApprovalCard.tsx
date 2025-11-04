@@ -1,24 +1,33 @@
 import { approveAndAssign } from '@/app/actions'
-import { Label } from '@/components/ui/label'
-import { Select } from '@/components/ui/select'
-import { Button } from '@/components/ui/button'
+import { Label, Select, Button } from '@/components/ui'
+
+type VehicleLite = { id: string; name: string; plate: string }
+type DriverLite = { id: string; name: string }
+type RequestLite = {
+  id: string
+  purpose: string
+  startTime: string | Date
+  endTime: string | Date
+  startLocation?: string | null
+  destination?: string | null
+}
 
 export default function RequestApprovalCard({ req, vehicles, drivers }: {
-  req: any
-  vehicles: { id: string, name: string, plate: string }[]
-  drivers: { id: string, name: string }[]
+  req: RequestLite
+  vehicles: VehicleLite[]
+  drivers: DriverLite[]
 }) {
-  const vehicleOptions = (req.preferredVehicleId ? vehicles.filter(v => v.id === req.preferredVehicleId) : vehicles)
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="text-sm text-slate-700"><span className="font-medium">Purpose:</span> {req.purpose}</div>
+      <div className="text-xs text-slate-500">From: {req.startLocation} → {req.destination}</div>
       <div className="text-xs text-slate-500">Time: {new Date(req.startTime).toLocaleString()} - {new Date(req.endTime).toLocaleString()}</div>
       <form action={approveAndAssign} className="mt-3 grid sm:grid-cols-3 gap-3 items-end">
         <input type="hidden" name="reqId" value={req.id} />
         <div className="block">
           <Label className="text-xs">Vehicle</Label>
-          <Select key={`veh-${req.id}-${vehicleOptions.length}`} name="vehicleId">
-            {vehicleOptions.map(v => (
+          <Select key={`veh-${req.id}-${vehicles.length}`} name="vehicleId">
+            {vehicles.map(v => (
               <option key={v.id} value={v.id}>{v.name} - {v.plate}</option>
             ))}
           </Select>

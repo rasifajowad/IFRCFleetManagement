@@ -63,7 +63,9 @@ model Request {
   requester          User      @relation(fields: [requesterId], references: [id])
   requesterId        String
   purpose            String
-  preferredVehicleId String?
+  preferredVehicleId String? // deprecated: staff no longer selects vehicle
+  startLocation      String   @default("")
+  destination        String   @default("")
   startTime          DateTime
   endTime            DateTime
   notes              String

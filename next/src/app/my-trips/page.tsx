@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 
 export const dynamic = 'force-dynamic'
 
-export default async function Page({ searchParams }: { searchParams?: { driverId?: string } }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ driverId?: string }> }) {
   const me = await getCurrentUser()
   if (!me || me.role !== 'driver') {
     return (
@@ -24,7 +24,8 @@ export default async function Page({ searchParams }: { searchParams?: { driverId
     )
   }
   const drivers = await prisma.user.findMany({ where: { role: 'driver' }, orderBy: { name: 'asc' } })
-  const driverId = searchParams?.driverId || me.id
+  const sp = await searchParams
+  const driverId = sp?.driverId || me.id
 
   const bookings = driverId
     ? await prisma.booking.findMany({

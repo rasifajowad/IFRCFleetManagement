@@ -5,7 +5,8 @@ export const RequestRepo = {
     id: string
     requesterId: string
     purpose: string
-    preferredVehicleId?: string | null
+    startLocation: string
+    destination: string
     startTime: Date
     endTime: Date
     notes: string
@@ -24,4 +25,3 @@ export const RequestRepo = {
     return prisma.request.findMany({ where: { status: 'Pending' }, orderBy: { createdAt: 'desc' } })
   },
 }
-
