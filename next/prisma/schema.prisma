@@ -1,0 +1,80 @@
+// Prisma schema for city-fleet-scheduler-next
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  staff
+  officer
+  driver
+}
+
+model User {
+  id                String    @id
+  name              String
+  role              Role
+  email             String?   @unique
+  passwordHash      String?
+  createdAt         DateTime  @default(now())
+  requests          Request[]
+  driverBookings    Booking[] @relation("DriverBookings")
+  requesterBookings Booking[] @relation("RequesterBookings")
+  assignedVehicles  Vehicle[] @relation("AssignedDriver")
+}
+
+model Vehicle {
+  id               String    @id
+  name             String
+  plate            String
+  assignedDriver   User?     @relation("AssignedDriver", fields: [assignedDriverId], references: [id])
+  assignedDriverId String?
+  bookings         Booking[]
+}
+
+model Request {
+  id                 String    @id
+  requester          User      @relation(fields: [requesterId], references: [id])
+  requesterId        String
+  purpose            String
+  preferredVehicleId String?
+  startTime          DateTime
+  endTime            DateTime
+  notes              String
+  status             String // Pending | Approved
+  createdAt          DateTime  @default(now())
+  bookings           Booking[]
+}
+
+model Booking {
+  id            String    @id
+  request       Request   @relation(fields: [requestId], references: [id])
+  requestId     String
+  vehicle       Vehicle   @relation(fields: [vehicleId], references: [id])
+  vehicleId     String
+  driver        User      @relation("DriverBookings", fields: [driverId], references: [id])
+  driverId      String
+  requester     User      @relation("RequesterBookings", fields: [requesterId], references: [id])
+  requesterId   String
+  purpose       String
+  startTime     DateTime
+  endTime       DateTime
+  status        String // Booked | InUse | Completed
+  notes         String
+  override      Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  actualStart   DateTime?
+  actualEnd     DateTime?
+  startLocation String?
+  endLocation   String?
+  odometerStart Int?
+  odometerEnd   Int?
+}
+
+
