@@ -24,10 +24,29 @@ model User {
   passwordHash      String?
   createdAt         DateTime  @default(now())
   phone             String?
+  department        String?
+  title             String?
+  location          String?
+  active            Boolean   @default(true)
+  driverLicenseNo   String?
+  driverLicenseExpiry DateTime?
   requests          Request[]
   driverBookings    Booking[] @relation("DriverBookings")
   requesterBookings Booking[] @relation("RequesterBookings")
   assignedVehicles  Vehicle[] @relation("AssignedDriver")
+  auditLogs         AuditLog[]
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actor      User     @relation(fields: [actorId], references: [id])
+  actorId    String
+  action     String
+  entityType String
+  entityId   String
+  before     Json?
+  after      Json?
+  createdAt  DateTime @default(now())
 }
 
 model Vehicle {

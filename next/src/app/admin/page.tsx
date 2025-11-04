@@ -3,6 +3,7 @@ import { getCurrentUser } from '@/lib/auth'
 import DriverList from '@/components/admin/DriverList'
 import VehicleAssignmentList from '@/components/admin/VehicleAssignmentList'
 import BookingsTable from '@/components/admin/BookingsTable'
+import SectionHeader from '@/components/aceternity/SectionHeader'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,10 +27,7 @@ export default async function Page() {
 
   return (
     <main className="mx-auto max-w-6xl p-6 space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold">Admin</h1>
-        <p className="text-slate-500 text-sm">Manage drivers, vehicle assignments, and bookings</p>
-      </div>
+      <SectionHeader title="Admin" subtitle="Manage drivers, vehicle assignments, and bookings" />
 
       <section className="grid lg:grid-cols-3 gap-6">
         <DriverList drivers={drivers} />
@@ -39,6 +37,10 @@ export default async function Page() {
       </section>
 
       <BookingsTable bookings={bookings} />
+
+      <div className="mt-6">
+        <a href="/admin/members" className="rounded-xl border border-slate-300 px-4 py-2 text-sm">Manage Members</a>
+      </div>
     </main>
   )
 }

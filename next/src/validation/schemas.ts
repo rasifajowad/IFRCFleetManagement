@@ -56,5 +56,31 @@ export const DeleteBookingSchema = z.object({ bookingId: z.string().trim().min(1
 
 export const UpdateProfileSchema = z.object({
   name: z.string().trim().min(1),
-  phone: z.string().trim().optional(),
+  phone: z.string().optional(),
+  department: z.string().optional(),
+  title: z.string().optional(),
+  location: z.string().optional(),
+  driverLicenseNo: z.string().optional(),
+  driverLicenseExpiry: z.preprocess((v) => v ? new Date(String(v)) : undefined, z.date().optional()),
 })
+
+export const AdminUpdateUserSchema = z.object({
+  id: z.string().trim().min(1),
+  name: z.string().trim().min(1),
+  email: z.string().email().optional(),
+  phone: z.string().optional(),
+  department: z.string().optional(),
+  title: z.string().optional(),
+  location: z.string().optional(),
+  driverLicenseNo: z.string().optional(),
+  driverLicenseExpiry: z.preprocess((v) => v ? new Date(String(v)) : undefined, z.date().optional()),
+  active: z.preprocess((v) => v === 'on' ? true : v === 'true' ? true : false, z.boolean()).optional(),
+})
+
+export const AdminChangeRoleSchema = z.object({
+  id: z.string().trim().min(1),
+  role: z.enum(['staff','driver','officer']),
+  reassignToDriverId: z.string().optional(),
+})
+
+export const AdminDeleteUserSchema = z.object({ id: z.string().trim().min(1) })

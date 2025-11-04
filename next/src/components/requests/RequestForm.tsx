@@ -1,4 +1,9 @@
 import { createRequest } from '@/app/actions'
+import { Label } from '@/components/ui/label'
+import { Select } from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
 
 export default function RequestForm({ staff, vehicles, meId, defaultStart, defaultEnd }: {
   staff: { id: string, name: string }[]
@@ -11,49 +16,45 @@ export default function RequestForm({ staff, vehicles, meId, defaultStart, defau
     <form action={createRequest} className="grid md:grid-cols-2 gap-4">
       <input type="hidden" name="requesterId" value={meId} />
       <div>
-        <span className="block text-sm mb-1 text-slate-600">Requester</span>
+        <Label>Requester</Label>
         <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
           {staff.find(s => s.id === meId)?.name || 'Unknown'}
         </div>
       </div>
 
-      <label className="block">
-        <span className="block text-sm mb-1 text-slate-600">Preferred Vehicle</span>
-        <select
-          key={`pref-${vehicles.length}`}
-          name="preferredVehicleId"
-          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-slate-300"
-        >
+      <div className="block">
+        <Label>Preferred Vehicle</Label>
+        <Select key={`pref-${vehicles.length}`} name="preferredVehicleId">
           <option value="">Any</option>
           {vehicles.map(v => (
             <option key={v.id} value={v.id}>{v.name} - {v.plate}</option>
           ))}
-        </select>
-      </label>
-
-      <label className="block">
-        <span className="block text-sm mb-1 text-slate-600">Purpose</span>
-        <input name="purpose" className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-slate-300" placeholder="e.g. Site visit, meeting" />
-      </label>
-
-      <div className="grid grid-cols-2 gap-4 md:col-span-2">
-        <label className="block">
-          <span className="block text-sm mb-1 text-slate-600">Pickup Time</span>
-          <input type="datetime-local" name="startTime" defaultValue={defaultStart} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-slate-300" />
-        </label>
-        <label className="block">
-          <span className="block text-sm mb-1 text-slate-600">Return Time</span>
-          <input type="datetime-local" name="endTime" defaultValue={defaultEnd} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-slate-300" />
-        </label>
+        </Select>
       </div>
 
-      <label className="md:col-span-2 block">
-        <span className="block text-sm mb-1 text-slate-600">Notes</span>
-        <textarea name="notes" rows={3} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-slate-300" />
-      </label>
+      <div className="block">
+        <Label>Purpose</Label>
+        <Input name="purpose" placeholder="e.g. Site visit, meeting" />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 md:col-span-2">
+        <div className="block">
+          <Label>Pickup Time</Label>
+          <Input type="datetime-local" name="startTime" defaultValue={defaultStart} />
+        </div>
+        <div className="block">
+          <Label>Return Time</Label>
+          <Input type="datetime-local" name="endTime" defaultValue={defaultEnd} />
+        </div>
+      </div>
+
+      <div className="md:col-span-2 block">
+        <Label>Notes</Label>
+        <Textarea name="notes" rows={3} />
+      </div>
 
       <div className="md:col-span-2">
-        <button className="rounded-xl bg-slate-900 text-white px-4 py-2 text-sm hover:opacity-90" type="submit">Submit Request</button>
+        <Button type="submit">Submit Request</Button>
       </div>
     </form>
   )

@@ -1,4 +1,7 @@
 import { approveAndAssign } from '@/app/actions'
+import { Label } from '@/components/ui/label'
+import { Select } from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
 
 export default function RequestApprovalCard({ req, vehicles, drivers }: {
   req: any
@@ -12,30 +15,22 @@ export default function RequestApprovalCard({ req, vehicles, drivers }: {
       <div className="text-xs text-slate-500">Time: {new Date(req.startTime).toLocaleString()} - {new Date(req.endTime).toLocaleString()}</div>
       <form action={approveAndAssign} className="mt-3 grid sm:grid-cols-3 gap-3 items-end">
         <input type="hidden" name="reqId" value={req.id} />
-        <label className="block">
-          <span className="block text-xs text-slate-600 mb-1">Vehicle</span>
-          <select
-            key={`veh-${req.id}-${vehicleOptions.length}`}
-            name="vehicleId"
-            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-slate-300"
-          >
+        <div className="block">
+          <Label className="text-xs">Vehicle</Label>
+          <Select key={`veh-${req.id}-${vehicleOptions.length}`} name="vehicleId">
             {vehicleOptions.map(v => (
               <option key={v.id} value={v.id}>{v.name} - {v.plate}</option>
             ))}
-          </select>
-        </label>
-        <label className="block">
-          <span className="block text-xs text-slate-600 mb-1">Driver</span>
-          <select
-            key={`drv-${req.id}-${drivers.length}`}
-            name="driverId"
-            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-slate-300"
-          >
+          </Select>
+        </div>
+        <div className="block">
+          <Label className="text-xs">Driver</Label>
+          <Select key={`drv-${req.id}-${drivers.length}`} name="driverId">
             {drivers.map((d) => (
               <option key={d.id} value={d.id}>{d.name}</option>
             ))}
-          </select>
-        </label>
+          </Select>
+        </div>
         <label className="block">
           <span className="block text-xs text-slate-600 mb-1">Options</span>
           <div className="flex items-center gap-2">
@@ -44,7 +39,7 @@ export default function RequestApprovalCard({ req, vehicles, drivers }: {
           </div>
         </label>
         <div className="sm:col-span-3">
-          <button className="rounded-xl bg-slate-900 text-white px-4 py-2 text-sm hover:opacity-90" type="submit">Approve & Assign</button>
+          <Button type="submit">Approve & Assign</Button>
         </div>
       </form>
     </div>

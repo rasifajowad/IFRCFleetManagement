@@ -23,6 +23,17 @@ export const BookingRepo = {
   async update(id: string, data: any) {
     return prisma.booking.update({ where: { id }, data })
   },
+  async reassignOpenForDriver(fromDriverId: string, toDriverId: string) {
+    return prisma.booking.updateMany({ where: { driverId: fromDriverId, status: { not: 'Completed' } }, data: { driverId: toDriverId } })
+  },
+  async hasAnyForDriver(driverId: string) {
+    const c = await prisma.booking.count({ where: { driverId } })
+    return c > 0
+  },
+  async hasAnyForRequester(requesterId: string) {
+    const c = await prisma.booking.count({ where: { requesterId } })
+    return c > 0
+  },
   async completeOpenForDriver(driverId: string) {
     return prisma.booking.updateMany({ where: { driverId, status: { not: 'Completed' } }, data: { status: 'Completed' } })
   },
@@ -30,4 +41,3 @@ export const BookingRepo = {
     return prisma.booking.delete({ where: { id } })
   },
 }
-

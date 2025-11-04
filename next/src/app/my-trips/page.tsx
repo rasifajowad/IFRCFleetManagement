@@ -1,6 +1,11 @@
 import { prisma } from '@/lib/db'
 import { endTrip, startTrip } from '../actions'
 import { getCurrentUser } from '@/lib/auth'
+import SectionHeader from '@/components/aceternity/SectionHeader'
+import { Label } from '@/components/ui/label'
+import { Select } from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,19 +36,16 @@ export default async function Page({ searchParams }: { searchParams?: { driverId
 
   return (
     <main className="mx-auto max-w-5xl p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">My Trips</h1>
-        <p className="text-slate-500 text-sm">Start and end trips assigned to a driver</p>
-      </div>
+      <SectionHeader title="My Trips" subtitle="Start and end trips assigned to a driver" />
 
       <form className="flex items-center gap-3" action="" method="get">
-        <label className="text-sm text-slate-600">Driver</label>
-        <select key={`sel-${driverId}`} name="driverId" defaultValue={driverId} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300">
+        <Label className="text-sm">Driver</Label>
+        <Select key={`sel-${driverId}`} name="driverId" defaultValue={driverId}>
           {drivers.map(d => (
             <option key={d.id} value={d.id}>{d.name}</option>
           ))}
-        </select>
-        <button className="rounded-xl bg-slate-900 text-white px-3 py-2 text-sm" type="submit">View</button>
+        </Select>
+        <Button type="submit">View</Button>
       </form>
 
       <div className="space-y-4">
@@ -66,24 +68,24 @@ export default async function Page({ searchParams }: { searchParams?: { driverId
             {b.status === 'Booked' && (
               <form action={startTrip} className="mt-3 grid sm:grid-cols-4 gap-3 items-end">
                 <input type="hidden" name="bookingId" value={b.id} />
-                <label className="block">
-                  <span className="block text-xs text-slate-600 mb-1">Start Location</span>
-                  <select name="startLocationType" className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2">
+                <div className="block">
+                  <Label className="text-xs">Start Location</Label>
+                  <Select name="startLocationType">
                     <option value="Office">Office</option>
                     <option value="Warehouse">Warehouse</option>
                     <option value="Other">Other</option>
-                  </select>
-                </label>
-                <label className="block">
-                  <span className="block text-xs text-slate-600 mb-1">Other (if selected)</span>
-                  <input name="startLocationOther" className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2" placeholder="Custom location" />
-                </label>
-                <label className="block">
-                  <span className="block text-xs text-slate-600 mb-1">Odometer Start</span>
-                  <input type="number" inputMode="numeric" name="odometerStart" className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2" required />
-                </label>
+                  </Select>
+                </div>
+                <div className="block">
+                  <Label className="text-xs">Other (if selected)</Label>
+                  <Input name="startLocationOther" placeholder="Custom location" />
+                </div>
+                <div className="block">
+                  <Label className="text-xs">Odometer Start</Label>
+                  <Input type="number" inputMode="numeric" name="odometerStart" required />
+                </div>
                 <div>
-                  <button type="submit" className="rounded-xl bg-slate-900 text-white px-4 py-2 text-sm hover:opacity-90">Start Trip</button>
+                  <Button type="submit">Start Trip</Button>
                 </div>
               </form>
             )}
@@ -91,24 +93,24 @@ export default async function Page({ searchParams }: { searchParams?: { driverId
             {b.status === 'InUse' && (
               <form action={endTrip} className="mt-3 grid sm:grid-cols-4 gap-3 items-end">
                 <input type="hidden" name="bookingId" value={b.id} />
-                <label className="block">
-                  <span className="block text-xs text-slate-600 mb-1">End Location</span>
-                  <select name="endLocationType" className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2">
+                <div className="block">
+                  <Label className="text-xs">End Location</Label>
+                  <Select name="endLocationType">
                     <option value="Office">Office</option>
                     <option value="Warehouse">Warehouse</option>
                     <option value="Other">Other</option>
-                  </select>
-                </label>
-                <label className="block">
-                  <span className="block text-xs text-slate-600 mb-1">Other (if selected)</span>
-                  <input name="endLocationOther" className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2" placeholder="Custom location" />
-                </label>
-                <label className="block">
-                  <span className="block text-xs text-slate-600 mb-1">Odometer End</span>
-                  <input type="number" inputMode="numeric" name="odometerEnd" className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2" required />
-                </label>
+                  </Select>
+                </div>
+                <div className="block">
+                  <Label className="text-xs">Other (if selected)</Label>
+                  <Input name="endLocationOther" placeholder="Custom location" />
+                </div>
+                <div className="block">
+                  <Label className="text-xs">Odometer End</Label>
+                  <Input type="number" inputMode="numeric" name="odometerEnd" required />
+                </div>
                 <div>
-                  <button type="submit" className="rounded-xl bg-slate-900 text-white px-4 py-2 text-sm hover:opacity-90">End Trip</button>
+                  <Button type="submit">End Trip</Button>
                 </div>
               </form>
             )}

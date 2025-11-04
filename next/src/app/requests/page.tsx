@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db'
 import { getCurrentUser } from '@/lib/auth'
 import RequestApprovalCard from '@/components/approvals/RequestApprovalCard'
+import SectionHeader from '@/components/aceternity/SectionHeader'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,10 +26,7 @@ export default async function Page() {
 
   return (
     <main className="mx-auto max-w-5xl p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Pending Requests</h1>
-        <p className="text-slate-500 text-sm">Approve and assign vehicles and drivers</p>
-      </div>
+      <SectionHeader title="Pending Requests" subtitle="Approve and assign vehicles and drivers" />
 
       <div className="space-y-4">
         {pending.length === 0 && <div className="text-slate-500 text-sm">No pending requests</div>}

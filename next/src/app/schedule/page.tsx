@@ -1,31 +1,31 @@
 import { prisma } from '@/lib/db'
-import Timeline from '@/components/schedule/Timeline'
-import { startOfDay, endOfDay, hoursRange, toISODate } from '@/lib/time'
+import { startOfDay, endOfDay, toISODate } from '@/lib/time'
+import SectionHeader from '@/components/aceternity/SectionHeader'
+import { Card, CardContent } from '@/components/ui/card'
+import VehicleDashboard from '@/components/schedule/VehicleDashboard'
+import FleetCalendar from '@/components/calendar/FleetCalendar'
 
 export const dynamic = 'force-dynamic'
 
-export default async function Page({ searchParams }: { searchParams: { d?: string } }) {
-  const base = searchParams?.d ? new Date(searchParams.d) : new Date()
+export default async function Page({ searchParams }: { searchParams: Promise<{ d?: string }> }) {
+  const sp = await searchParams
+  const base = sp?.d ? new Date(sp.d) : new Date()
   const day = startOfDay(base)
   const dayEnd = endOfDay(base)
 
-  const vehicles = await prisma.vehicle.findMany({
-    include: {
-      bookings: {
-        where: {
-          AND: [
-            { endTime: { gte: day } },
-            { startTime: { lte: dayEnd } },
-          ],
-        },
-        orderBy: { startTime: 'asc' },
-      },
-      assignedDriver: true,
+  const rangeStart = new Date(day); rangeStart.setDate(rangeStart.getDate() - 14)
+  const rangeEnd = new Date(dayEnd); rangeEnd.setDate(rangeEnd.getDate() + 45)
+  const bookings = await prisma.booking.findMany({
+    where: {
+      AND: [
+        { endTime: { gte: rangeStart } },
+        { startTime: { lte: rangeEnd } },
+      ],
     },
-    orderBy: { name: 'asc' },
+    include: { vehicle: true, driver: true, requester: true },
+    orderBy: { startTime: 'asc' },
   })
-
-  const hours = hoursRange(8, 20)
+  const vehicles = await prisma.vehicle.findMany({ include: { assignedDriver: true }, orderBy: { name: 'asc' } })
 
   const prev = new Date(day); prev.setDate(prev.getDate() - 1)
   const next = new Date(day); next.setDate(next.getDate() + 1)
@@ -35,8 +35,7 @@ export default async function Page({ searchParams }: { searchParams: { d?: strin
     <main className="mx-auto max-w-5xl p-6 space-y-6">
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Schedule</h1>
-          <p className="text-slate-500 text-sm">Daily timeline across all vehicles</p>
+          <SectionHeader title="Schedule" subtitle="Daily timeline across all vehicles" />
           <div className="text-xs text-slate-500 mt-1">{toISODate(day)}</div>
         </div>
         <div className="flex gap-2">
@@ -46,7 +45,35 @@ export default async function Page({ searchParams }: { searchParams: { d?: strin
         </div>
       </div>
 
-      <Timeline vehicles={vehicles as any} day={day} hours={hours} />
+      <VehicleDashboard
+        vehicles={vehicles as any}
+        bookings={bookings.map(b => ({
+          id: b.id,
+          vehicleId: b.vehicleId,
+          startTime: b.startTime as any,
+          endTime: b.endTime as any,
+          status: b.status,
+          requester: { name: (b as any).requester?.name || '' },
+          purpose: b.purpose,
+          startLocation: (b as any).startLocation,
+          endLocation: (b as any).endLocation,
+        }))}
+      />
+
+      <Card>
+        <CardContent className="p-3">
+          <FleetCalendar
+            initialDate={toISODate(day)}
+            events={bookings.map((b) => ({
+              id: b.id,
+              title: `${b.vehicle.name} — ${b.purpose} (${b.status})`,
+              start: new Date(b.startTime).toISOString(),
+              end: new Date(b.endTime).toISOString(),
+              color: b.status === 'InUse' ? '#ef4444' : b.status === 'Booked' ? '#f59e0b' : '#64748b',
+            }))}
+          />
+        </CardContent>
+      </Card>
     </main>
   )
 }

@@ -7,10 +7,11 @@ const AUTH_SECRET = process.env.AUTH_SECRET || 'dev-secret-change-me'
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
   // Paths and their required roles
-  const roleRequirements: Array<{ test: (p: string) => boolean; role: 'officer' | 'driver' | 'staff'; login?: string }> = [
-    { test: (p) => p.startsWith('/admin') || p.startsWith('/requests') || p.startsWith('/api/export/completed'), role: 'officer', login: '/admin/login' },
-    { test: (p) => p === '/my-trips' || p.startsWith('/my-trips/'), role: 'driver', login: '/login?role=driver' },
-    { test: (p) => p === '/my-requests' || p.startsWith('/my-requests/'), role: 'staff', login: '/login' },
+  const roleRequirements: Array<{ test: (p: string) => boolean; roles: Array<'officer'|'driver'|'staff'>; login?: string }> = [
+    { test: (p) => p.startsWith('/admin') || p.startsWith('/requests') || p.startsWith('/api/export/completed'), roles: ['officer'], login: '/admin/login' },
+    { test: (p) => p === '/my-trips' || p.startsWith('/my-trips/'), roles: ['driver'], login: '/login?role=driver' },
+    // Staff requests are allowed for staff, driver, officer
+    { test: (p) => p === '/my-requests' || p.startsWith('/my-requests/'), roles: ['staff','driver','officer'], login: '/login' },
   ]
 
   const rule = roleRequirements.find(r => r.test(pathname))
@@ -22,7 +23,7 @@ export async function middleware(req: NextRequest) {
     const url = new URL(rule.login || '/login', req.url)
     return NextResponse.redirect(url)
   }
-  if (me.role !== rule.role) {
+  if (!rule.roles.includes(me.role)) {
     // Wrong role: send to their home
     const url = new URL(me.role === 'officer' ? '/admin' : me.role === 'driver' ? '/my-trips' : '/my-requests', req.url)
     return NextResponse.redirect(url)
@@ -40,4 +41,3 @@ export const config = {
     '/api/export/completed',
   ],
 }
-

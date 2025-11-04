@@ -17,11 +17,14 @@ import {
   UpdateBookingStatusSchema,
   DeleteBookingSchema,
   UpdateProfileSchema,
+  AdminUpdateUserSchema,
+  AdminChangeRoleSchema,
+  AdminDeleteUserSchema,
 } from "@/validation/schemas"
 
 export async function createRequest(formData: FormData) {
   const me = await getCurrentUser()
-  if (!me || me.role !== 'staff') return
+  if (!me) return
   const raw = Object.fromEntries(formData.entries())
   const parsed = CreateRequestSchema.safeParse(raw)
   if (!parsed.success) return
@@ -171,10 +174,80 @@ export async function updateProfile(formData: FormData) {
   const raw = Object.fromEntries(formData.entries())
   const parsed = UpdateProfileSchema.safeParse(raw)
   if (!parsed.success) return
-  await prisma.user.update({ where: { id: me.id }, data: { name: parsed.data.name, phone: parsed.data.phone } })
+  const { name, phone, department, title, location, driverLicenseNo, driverLicenseExpiry } = parsed.data
+  if (me.role === 'driver') {
+    // Enforce driver license validation for drivers
+    const ln = (driverLicenseNo || '').trim()
+    if (!ln || ln.length !== 16 || !/^[A-Za-z0-9]{16}$/.test(ln)) return
+    if (!driverLicenseExpiry) return
+    const today = new Date(); today.setHours(0,0,0,0)
+    const exp = new Date(driverLicenseExpiry); exp.setHours(0,0,0,0)
+    if (exp < today) return
+  }
+  await prisma.user.update({ where: { id: me.id }, data: { name, phone, department, title, location, driverLicenseNo, driverLicenseExpiry } })
   // Revalidate pages that show identity
   revalidatePath('/profile')
   revalidatePath('/my-requests')
   revalidatePath('/my-trips')
   revalidatePath('/admin')
+}
+
+// Admin: members management
+export async function adminUpdateUser(formData: FormData) {
+  const me = await getCurrentUser()
+  if (!me || me.role !== 'officer') return
+  const raw = Object.fromEntries(formData.entries())
+  const parsed = AdminUpdateUserSchema.safeParse(raw)
+  if (!parsed.success) return
+  const { id, ...data } = parsed.data
+  await prisma.user.update({ where: { id }, data })
+  revalidatePath('/admin/members')
+}
+
+export async function adminChangeRole(formData: FormData) {
+  const me = await getCurrentUser()
+  if (!me || me.role !== 'officer') return
+  const raw = Object.fromEntries(formData.entries())
+  const parsed = AdminChangeRoleSchema.safeParse(raw)
+  if (!parsed.success) return
+  const { id, role, reassignToDriverId } = parsed.data
+  const user = await prisma.user.findUnique({ where: { id } })
+  if (!user) return
+  if (user.role === 'officer' && role !== 'officer') {
+    const count = await prisma.user.count({ where: { role: 'officer' as any, active: true } })
+    if (count <= 1) return // prevent removing last officer
+  }
+  if (user.role === 'driver' && role !== 'driver') {
+    // force reassignment: need replacement driver
+    if (!reassignToDriverId) return
+    await prisma.$transaction([
+      prisma.vehicle.updateMany({ where: { assignedDriverId: id }, data: { assignedDriverId: reassignToDriverId } }),
+      prisma.booking.updateMany({ where: { driverId: id, status: { not: 'Completed' } }, data: { driverId: reassignToDriverId } }),
+      prisma.user.update({ where: { id }, data: { role } })
+    ])
+  } else {
+    await prisma.user.update({ where: { id }, data: { role } })
+  }
+  revalidatePath('/admin/members')
+  revalidatePath('/admin')
+}
+
+export async function adminDeleteUser(formData: FormData) {
+  const me = await getCurrentUser()
+  if (!me || me.role !== 'officer') return
+  const raw = Object.fromEntries(formData.entries())
+  const parsed = AdminDeleteUserSchema.safeParse(raw)
+  if (!parsed.success) return
+  const { id } = parsed.data
+  const user = await prisma.user.findUnique({ where: { id } })
+  if (!user) return
+  if (user.role === 'officer') {
+    const count = await prisma.user.count({ where: { role: 'officer' as any, active: true } })
+    if (count <= 1) return // prevent deleting last officer
+  }
+  // Prevent delete if referenced by bookings (driver/requester)
+  const blocks = await prisma.booking.count({ where: { OR: [{ driverId: id }, { requesterId: id }] } })
+  if (blocks > 0) return
+  await prisma.user.delete({ where: { id } })
+  revalidatePath('/admin/members')
 }

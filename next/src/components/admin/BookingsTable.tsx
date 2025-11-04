@@ -1,5 +1,9 @@
 import { deleteBooking, updateBookingStatus } from '@/app/actions'
 import FormRefresh from '@/components/FormRefresh'
+import { Select } from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
+import ConfirmButton from '@/components/ui/confirm-button'
+import { Table, THead, TBody, TR, TH, TD } from '@/components/ui/table'
 
 export default function BookingsTable({ bookings }: {
   bookings: { id: string, status: string, startTime: string | Date, endTime: string | Date, vehicle: { name: string }, driver: { name: string }, requester: { name: string } }[]
@@ -11,54 +15,59 @@ export default function BookingsTable({ bookings }: {
         <a href="/api/export/completed" className="rounded-xl bg-slate-900 text-white px-3 py-2 text-sm">Export Completed Trips</a>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full text-sm">
-          <thead>
-            <tr className="text-left text-slate-600">
-              <th className="py-2 pr-4">Booking</th>
-              <th className="py-2 pr-4">Vehicle</th>
-              <th className="py-2 pr-4">Driver</th>
-              <th className="py-2 pr-4">Requester</th>
-              <th className="py-2 pr-4">Time</th>
-              <th className="py-2 pr-4">Status</th>
-              <th className="py-2 pr-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table className="min-w-full">
+          <THead>
+            <TR>
+              <TH>Booking</TH>
+              <TH>Vehicle</TH>
+              <TH>Driver</TH>
+              <TH>Requester</TH>
+              <TH>Time</TH>
+              <TH>Status</TH>
+              <TH>Actions</TH>
+            </TR>
+          </THead>
+          <TBody>
             {bookings.map(b => (
-              <tr key={b.id} className="border-t">
-                <td className="py-2 pr-4">{b.id}</td>
-                <td className="py-2 pr-4">{b.vehicle.name}</td>
-                <td className="py-2 pr-4">{b.driver.name}</td>
-                <td className="py-2 pr-4">{b.requester.name}</td>
-                <td className="py-2 pr-4 whitespace-nowrap">{new Date(b.startTime).toLocaleString()} - {new Date(b.endTime).toLocaleString()}</td>
-                <td className="py-2 pr-4">
+              <TR key={b.id}>
+                <TD>{b.id}</TD>
+                <TD>{b.vehicle.name}</TD>
+                <TD>{b.driver.name}</TD>
+                <TD>{b.requester.name}</TD>
+                <TD className="whitespace-nowrap">{new Date(b.startTime).toLocaleString()} - {new Date(b.endTime).toLocaleString()}</TD>
+                <TD>
                   <form action={updateBookingStatus} className="flex items-center gap-2">
                     <input type="hidden" name="bookingId" value={b.id} />
-                    <select
+                    <Select
                       key={`${b.id}:${b.status}`}
                       name="status"
                       defaultValue={b.status}
-                      className="rounded-lg border border-slate-300 bg-white px-2 py-1"
                     >
                       <option value="Booked">Booked</option>
                       <option value="InUse">InUse</option>
                       <option value="Completed">Completed</option>
-                    </select>
-                    <button className="rounded-lg bg-slate-900 text-white px-2 py-1 text-xs" type="submit">Update</button>
+                    </Select>
+                    <Button className="px-2 py-1 text-xs" type="submit">Update</Button>
                     <FormRefresh />
                   </form>
-                </td>
-                <td className="py-2 pr-4">
+                </TD>
+                <TD>
                   <form action={deleteBooking}>
                     <input type="hidden" name="bookingId" value={b.id} />
-                    <button className="text-red-600 hover:underline" type="submit">Delete</button>
+                    <ConfirmButton
+                      className="text-red-600 hover:underline"
+                      confirmTitle="Delete booking"
+                      confirmMessage="Are you sure you want to delete this booking? This cannot be undone."
+                    >
+                      Delete
+                    </ConfirmButton>
                     <FormRefresh />
                   </form>
-                </td>
-              </tr>
+                </TD>
+              </TR>
             ))}
-          </tbody>
-        </table>
+          </TBody>
+        </Table>
       </div>
     </div>
   )
