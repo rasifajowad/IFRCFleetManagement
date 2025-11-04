@@ -4,6 +4,38 @@ import { Sidebar, SidebarBody, SidebarLink } from '@/components/ui/sidebar'
 import { IconLogout } from '@tabler/icons-react'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import { useSidebar } from '@/components/ui/sidebar'
+
+function LiveBadge({ kind }: { kind: 'requests' | 'myTrips' }) {
+  const [count, setCount] = React.useState(0)
+  const { open } = useSidebar()
+  React.useEffect(() => {
+    let active = true
+    const load = async () => {
+      try {
+        const res = await fetch('/api/meta/counters', { cache: 'no-store' })
+        const json = await res.json()
+        const c = kind === 'requests' ? json.pendingRequests : json.myTrips
+        if (active) setCount(c)
+      } catch {}
+    }
+    load()
+    const onInvalidate = () => load()
+    const onFocus = () => load()
+    window.addEventListener('counters:invalidate', onInvalidate)
+    window.addEventListener('focus', onFocus)
+    return () => { active = false; window.removeEventListener('counters:invalidate', onInvalidate); window.removeEventListener('focus', onFocus) }
+  }, [kind])
+  if (!count) return null
+  return (
+    <>
+      {/* small dot shown near icon when collapsed */}
+      {!open && <span className="ml-[-10px] h-2 w-2 rounded-full bg-red-500" />}
+      {/* numeric pill when expanded */}
+      {open && <span className="ml-auto rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-medium text-white">{count}</span>}
+    </>
+  )
+}
 
 function Logo({ open }: { open: boolean }) {
   return (
@@ -30,7 +62,11 @@ export default function SidebarShell({ children, links, user }: { children: Reac
               <Logo open={open} />
               <div className="mt-4 flex flex-col gap-1">
                 {links.map((l, idx) => (
-                  <SidebarLink key={idx} link={l} />
+                  <div key={idx} className="flex items-center gap-2">
+                    <SidebarLink link={l} />
+                    {l.href === '/requests' && <LiveBadge kind="requests" />}
+                    {l.href === '/my-trips' && <LiveBadge kind="myTrips" />}
+                  </div>
                 ))}
               </div>
             </div>

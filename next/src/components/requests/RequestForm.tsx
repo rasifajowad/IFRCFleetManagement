@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { FieldGroup, FieldSet, Field, FieldLabel, FieldDescription, FieldLegend } from '@/components/ui/field'
+import { SubmitToast } from '@/components/ui/toast'
 import DateTimeRange from '@/components/requests/DateTimeRange'
 
 export default function RequestForm({ staff, meId, defaultStart, defaultEnd }: {
@@ -49,6 +50,7 @@ export default function RequestForm({ staff, meId, defaultStart, defaultEnd }: {
         </FieldSet>
         <Field>
           <Button type="submit">Submit Request</Button>
+          <SubmitToast success="Request submitted" />
         </Field>
       </FieldGroup>
     </form>

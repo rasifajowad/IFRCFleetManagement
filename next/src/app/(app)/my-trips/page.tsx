@@ -1,15 +1,16 @@
 import { prisma } from '@/lib/db'
-import { endTrip, startTrip } from '../actions'
+import { endTrip, startTrip } from '@/app/actions'
 import { getCurrentUser } from '@/lib/auth'
 import SectionHeader from '@/components/aceternity/SectionHeader'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { SubmitToast } from '@/components/ui/toast'
 
 export const dynamic = 'force-dynamic'
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ driverId?: string }> }) {
+export default async function Page() {
   const me = await getCurrentUser()
   if (!me || me.role !== 'driver') {
     return (
@@ -23,9 +24,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
       </main>
     )
   }
-  const drivers = await prisma.user.findMany({ where: { role: 'driver' }, orderBy: { name: 'asc' } })
-  const sp = await searchParams
-  const driverId = sp?.driverId || me.id
+  const driverId = me.id
 
   const bookings = driverId
     ? await prisma.booking.findMany({
@@ -37,17 +36,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
 
   return (
     <main className="mx-auto max-w-5xl p-6 space-y-6">
-      <SectionHeader title="My Trips" subtitle="Start and end trips assigned to a driver" />
-
-      <form className="flex items-center gap-3" action="" method="get">
-        <Label className="text-sm">Driver</Label>
-        <Select key={`sel-${driverId}`} name="driverId" defaultValue={driverId}>
-          {drivers.map(d => (
-            <option key={d.id} value={d.id}>{d.name}</option>
-          ))}
-        </Select>
-        <Button type="submit">View</Button>
-      </form>
+      <SectionHeader title="My Trips" subtitle="Start and end trips assigned to you" />
 
       <div className="space-y-4">
         {bookings.length === 0 && (
@@ -87,6 +76,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
                 </div>
                 <div>
                   <Button type="submit">Start Trip</Button>
+                  <SubmitToast success="Trip started" />
                 </div>
               </form>
             )}
@@ -112,6 +102,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
                 </div>
                 <div>
                   <Button type="submit">End Trip</Button>
+                  <SubmitToast success="Trip ended" />
                 </div>
               </form>
             )}

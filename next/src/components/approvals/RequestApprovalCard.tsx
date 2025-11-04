@@ -1,5 +1,6 @@
 import { approveAndAssign } from '@/app/actions'
 import { Label, Select, Button } from '@/components/ui'
+import { SubmitToast } from '@/components/ui/toast'
 
 type VehicleLite = { id: string; name: string; plate: string }
 type DriverLite = { id: string; name: string }
@@ -49,6 +50,7 @@ export default function RequestApprovalCard({ req, vehicles, drivers }: {
         </label>
         <div className="sm:col-span-3">
           <Button type="submit">Approve & Assign</Button>
+          <SubmitToast success="Approved and assigned" />
         </div>
       </form>
     </div>

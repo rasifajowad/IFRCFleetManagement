@@ -50,11 +50,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
           <SectionHeader title="Schedule" subtitle="Daily timeline across all vehicles" />
           <div className="text-xs text-slate-500 mt-1">{toISODate(day)}</div>
         </div>
-        <div className="flex gap-2">
-          <a className="rounded-xl border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50" href={`?d=${toISODate(prev)}`}>Yesterday</a>
-          <a className="rounded-xl border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50" href={`?d=${toISODate(new Date())}`}>Today</a>
-          <a className="rounded-xl border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50" href={`?d=${toISODate(next)}`}>Tomorrow</a>
-        </div>
       </div>
 
       <VehicleDashboard
