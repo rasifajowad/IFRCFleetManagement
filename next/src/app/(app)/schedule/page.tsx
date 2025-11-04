@@ -3,7 +3,8 @@ import { startOfDay, endOfDay, toISODate } from '@/lib/time'
 import SectionHeader from '@/components/aceternity/SectionHeader'
 import { Card, CardContent } from '@/components/ui/card'
 import VehicleDashboard from '@/components/schedule/VehicleDashboard'
-import FleetCalendar from '@/components/calendar/FleetCalendar'
+import dynamic from 'next/dynamic'
+const FleetCalendar = dynamic(() => import('@/components/calendar/FleetCalendar'), { ssr: false })
 
 export const dynamic = 'force-dynamic'
 
@@ -22,7 +23,18 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
         { startTime: { lte: rangeEnd } },
       ],
     },
-    include: { vehicle: true, driver: true, requester: true },
+    select: {
+      id: true,
+      vehicleId: true,
+      startTime: true,
+      endTime: true,
+      status: true,
+      purpose: true,
+      startLocation: true,
+      endLocation: true,
+      vehicle: { select: { name: true } },
+      requester: { select: { name: true } },
+    },
     orderBy: { startTime: 'asc' },
   })
   const vehicles = await prisma.vehicle.findMany({ include: { assignedDriver: true }, orderBy: { name: 'asc' } })

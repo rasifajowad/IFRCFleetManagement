@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import AppSidebar from "@/components/layout/AppSidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,14 +24,8 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/index.min.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.15/index.min.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.15/index.min.css" />
-      </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AppSidebar>{children}</AppSidebar>
-      </body>
+      <head></head>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
     </html>
   );
 }

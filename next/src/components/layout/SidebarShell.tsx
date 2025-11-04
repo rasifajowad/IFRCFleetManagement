@@ -3,6 +3,7 @@ import React from 'react'
 import { Sidebar, SidebarBody, SidebarLink } from '@/components/ui/sidebar'
 import { IconLogout } from '@tabler/icons-react'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 
 function Logo({ open }: { open: boolean }) {
   return (
@@ -14,7 +15,12 @@ function Logo({ open }: { open: boolean }) {
 }
 
 export default function SidebarShell({ children, links, user }: { children: React.ReactNode; links: Array<{ label: string; href: string; icon: React.ReactNode }>; user?: { name: string; role: string } }) {
+  const pathname = usePathname()
+  const hideSidebar = pathname === '/' || pathname === '/login' || pathname === '/signup' || pathname === '/admin/login'
   const [open, setOpen] = React.useState(false)
+  if (hideSidebar) {
+    return <div className="min-h-screen bg-zinc-50">{children}</div>
+  }
   return (
     <div className="flex h-screen w-full">
       <div className="flex-shrink-0">
