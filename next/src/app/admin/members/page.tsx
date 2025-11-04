@@ -3,12 +3,12 @@ import { getCurrentUser } from '@/lib/auth'
 import { adminChangeRole, adminDeleteUser, adminUpdateUser } from '@/app/actions'
 import FormRefresh from '@/components/FormRefresh'
 import SectionHeader from '@/components/aceternity/SectionHeader'
-import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import ConfirmButton from '@/components/ui/confirm-button'
 import { Table, THead, TBody, TR, TH, TD } from '@/components/ui/table'
+import { Field, FieldLabel, FieldDescription } from '@/components/ui/field'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,64 +38,81 @@ export default async function Page() {
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <Table>
-          <THead>
+        <Table className="min-w-[1100px]">
+          <THead className="[&_th]:sticky [&_th]:top-0 [&_th]:z-10 [&_th]:bg-card/90 [&_th]:backdrop-blur [&_th]:border-b">
             <TR>
-              <TH>Name</TH>
+              <TH className="rounded-tl-lg">Name</TH>
               <TH>Email</TH>
               <TH>Phone</TH>
               <TH>Dept</TH>
               <TH>Title</TH>
               <TH>Role</TH>
               <TH>Active</TH>
-              <TH>Actions</TH>
+              <TH className="rounded-tr-lg">Actions</TH>
             </TR>
           </THead>
           <TBody>
             {users.map(u => (
-              <TR key={u.id}>
+              <TR key={u.id} className="odd:bg-muted/40 hover:bg-muted transition-colors">
                 <TD>
                   <form action={adminUpdateUser} className="space-y-2 min-w-[220px]">
                     <input type="hidden" name="id" value={u.id} />
-                    <Label className="text-xs">Name</Label>
-                    <Input name="name" defaultValue={u.name} />
-                    <Label className="text-xs">Email</Label>
-                    <Input name="email" defaultValue={u.email || ''} placeholder="email" />
+                    <Field>
+                      <FieldLabel className="text-xs">Name</FieldLabel>
+                      <Input name="name" defaultValue={u.name} />
+                    </Field>
+                    <Field>
+                      <FieldLabel className="text-xs">Email</FieldLabel>
+                      <Input name="email" defaultValue={u.email || ''} placeholder="email" />
+                      <FieldDescription>Used for login. Must be unique.</FieldDescription>
+                    </Field>
                     <FormRefresh />
                     <Button className="px-2 py-1 text-xs" type="submit">Save</Button>
                   </form>
                 </TD>
-                <TD></TD>
+                <TD className="min-w-[120px]"></TD>
                 <TD>
                   <form action={adminUpdateUser} className="space-y-2 min-w-[160px]">
                     <input type="hidden" name="id" value={u.id} />
-                    <Label className="text-xs">Phone</Label>
-                    <Input name="phone" defaultValue={u.phone || ''} placeholder="phone" />
-                    <Label className="text-xs">Department</Label>
-                    <Input name="department" defaultValue={u.department || ''} placeholder="department" />
-                    <Label className="text-xs">Title</Label>
-                    <Input name="title" defaultValue={u.title || ''} placeholder="title" />
+                    <Field>
+                      <FieldLabel className="text-xs">Phone</FieldLabel>
+                      <Input name="phone" defaultValue={u.phone || ''} placeholder="phone" />
+                      <FieldDescription>Optional contact number.</FieldDescription>
+                    </Field>
+                    <Field>
+                      <FieldLabel className="text-xs">Department</FieldLabel>
+                      <Input name="department" defaultValue={u.department || ''} placeholder="department" />
+                    </Field>
+                    <Field>
+                      <FieldLabel className="text-xs">Title</FieldLabel>
+                      <Input name="title" defaultValue={u.title || ''} placeholder="title" />
+                    </Field>
                     <FormRefresh />
                     <Button className="px-2 py-1 text-xs" type="submit">Save</Button>
                   </form>
                 </TD>
-                <TD></TD>
+                <TD className="min-w-[120px]"></TD>
                 <TD>
                   <form action={adminChangeRole} className="space-y-2 min-w-[200px]">
                     <input type="hidden" name="id" value={u.id} />
-                    <Label className="text-xs">Role</Label>
-                    <Select key={`${u.id}:${u.role}`} name="role" defaultValue={u.role}>
+                    <Field>
+                      <FieldLabel className="text-xs">Role</FieldLabel>
+                      <Select key={`${u.id}:${u.role}`} name="role" defaultValue={u.role}>
                       <option value="staff">staff</option>
                       <option value="driver">driver</option>
                       <option value="officer">officer</option>
-                    </Select>
-                    <div className="text-xs text-slate-500">Reassign driver’s open items to:</div>
-                    <Select name="reassignToDriverId">
+                      </Select>
+                    </Field>
+                    <FieldDescription>Changing role may require reassignment.</FieldDescription>
+                    <Field>
+                      <FieldLabel className="text-xs">Reassign to driver</FieldLabel>
+                      <Select name="reassignToDriverId">
                       <option value="">Select driver</option>
                       {drivers.filter(d => d.id !== u.id).map(d => (
                         <option key={d.id} value={d.id}>{d.name}</option>
                       ))}
-                    </Select>
+                      </Select>
+                    </Field>
                     <FormRefresh />
                     <Button className="px-2 py-1 text-xs" type="submit">Change</Button>
                   </form>

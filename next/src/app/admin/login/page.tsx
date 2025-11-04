@@ -1,9 +1,9 @@
 import { getCurrentUser } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import SectionHeader from '@/components/aceternity/SectionHeader'
-import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { FieldGroup, FieldSet, Field, FieldLabel } from '@/components/ui/field'
 
 export default async function Page() {
   const me = await getCurrentUser()
@@ -13,18 +13,22 @@ export default async function Page() {
   return (
     <main className="mx-auto max-w-md p-6 space-y-4">
       <SectionHeader title="Fleet Officer Login" />
-      <form method="post" action="/api/auth/login" className="space-y-3">
-        <div className="block">
-          <Label>Email</Label>
-          <Input name="email" type="email" required />
-        </div>
-        <div className="block">
-          <Label>Password</Label>
-          <Input name="password" type="password" required />
-        </div>
-        <div>
-          <Button type="submit">Login</Button>
-        </div>
+      <form method="post" action="/api/auth/login">
+        <FieldGroup>
+          <FieldSet>
+            <Field>
+              <FieldLabel>Email</FieldLabel>
+              <Input name="email" type="email" required />
+            </Field>
+            <Field>
+              <FieldLabel>Password</FieldLabel>
+              <Input name="password" type="password" required />
+            </Field>
+          </FieldSet>
+          <Field orientation="horizontal">
+            <Button type="submit">Login</Button>
+          </Field>
+        </FieldGroup>
       </form>
     </main>
   )

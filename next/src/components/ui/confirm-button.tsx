@@ -1,7 +1,7 @@
 "use client"
 import React, { useRef, useState } from 'react'
-import Modal from './modal'
 import { Button } from './button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from './dialog'
 
 type ConfirmButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   confirmTitle?: string
@@ -41,13 +41,16 @@ export default function ConfirmButton({
       <button ref={btnRef} className={className} {...rest} onClick={handleClick}>
         {children}
       </button>
-      <Modal open={open} onClose={() => setOpen(false)} title={confirmTitle}>
-        <p className="text-sm text-slate-600">{confirmMessage}</p>
-        <div className="flex justify-end gap-2 pt-2">
-          <Button variant="outline" onClick={() => setOpen(false)} type="button">{cancelText}</Button>
-          <Button onClick={onConfirm} type="button">{confirmText}</Button>
-        </div>
-      </Modal>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogTitle>{confirmTitle}</DialogTitle>
+          <DialogDescription>{confirmMessage}</DialogDescription>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)} type="button">{cancelText}</Button>
+            <Button onClick={onConfirm} type="button">{confirmText}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
