@@ -23,6 +23,7 @@ model User {
   email             String?   @unique
   passwordHash      String?
   createdAt         DateTime  @default(now())
+  phone             String?
   requests          Request[]
   driverBookings    Booking[] @relation("DriverBookings")
   requesterBookings Booking[] @relation("RequesterBookings")

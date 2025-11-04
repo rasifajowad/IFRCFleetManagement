@@ -4,6 +4,8 @@ import DriverList from '@/components/admin/DriverList'
 import VehicleAssignmentList from '@/components/admin/VehicleAssignmentList'
 import BookingsTable from '@/components/admin/BookingsTable'
 
+export const dynamic = 'force-dynamic'
+
 export default async function Page() {
   const me = await getCurrentUser()
   if (!me || me.role !== 'officer') {

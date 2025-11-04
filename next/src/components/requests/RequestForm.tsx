@@ -19,7 +19,11 @@ export default function RequestForm({ staff, vehicles, meId, defaultStart, defau
 
       <label className="block">
         <span className="block text-sm mb-1 text-slate-600">Preferred Vehicle</span>
-        <select name="preferredVehicleId" className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-slate-300">
+        <select
+          key={`pref-${vehicles.length}`}
+          name="preferredVehicleId"
+          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-slate-300"
+        >
           <option value="">Any</option>
           {vehicles.map(v => (
             <option key={v.id} value={v.id}>{v.name} - {v.plate}</option>
@@ -54,4 +58,3 @@ export default function RequestForm({ staff, vehicles, meId, defaultStart, defau
     </form>
   )
 }
-

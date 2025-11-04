@@ -2,6 +2,8 @@ import { prisma } from '@/lib/db'
 import { getCurrentUser } from '@/lib/auth'
 import RequestApprovalCard from '@/components/approvals/RequestApprovalCard'
 
+export const dynamic = 'force-dynamic'
+
 export default async function Page() {
   const me = await getCurrentUser()
   if (!me || me.role !== 'officer') {

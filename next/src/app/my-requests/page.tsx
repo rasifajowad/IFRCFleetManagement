@@ -2,6 +2,8 @@ import { prisma } from '@/lib/db'
 import { getCurrentUser } from '@/lib/auth'
 import RequestForm from '@/components/requests/RequestForm'
 
+export const dynamic = 'force-dynamic'
+
 export default async function Page() {
   const me = await getCurrentUser()
   if (!me || me.role !== 'staff') {

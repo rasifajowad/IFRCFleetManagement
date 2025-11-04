@@ -1,4 +1,5 @@
 import { deleteBooking, updateBookingStatus } from '@/app/actions'
+import FormRefresh from '@/components/FormRefresh'
 
 export default function BookingsTable({ bookings }: {
   bookings: { id: string, status: string, startTime: string | Date, endTime: string | Date, vehicle: { name: string }, driver: { name: string }, requester: { name: string } }[]
@@ -33,18 +34,25 @@ export default function BookingsTable({ bookings }: {
                 <td className="py-2 pr-4">
                   <form action={updateBookingStatus} className="flex items-center gap-2">
                     <input type="hidden" name="bookingId" value={b.id} />
-                    <select name="status" defaultValue={b.status} className="rounded-lg border border-slate-300 bg-white px-2 py-1">
+                    <select
+                      key={`${b.id}:${b.status}`}
+                      name="status"
+                      defaultValue={b.status}
+                      className="rounded-lg border border-slate-300 bg-white px-2 py-1"
+                    >
                       <option value="Booked">Booked</option>
                       <option value="InUse">InUse</option>
                       <option value="Completed">Completed</option>
                     </select>
                     <button className="rounded-lg bg-slate-900 text-white px-2 py-1 text-xs" type="submit">Update</button>
+                    <FormRefresh />
                   </form>
                 </td>
                 <td className="py-2 pr-4">
                   <form action={deleteBooking}>
                     <input type="hidden" name="bookingId" value={b.id} />
                     <button className="text-red-600 hover:underline" type="submit">Delete</button>
+                    <FormRefresh />
                   </form>
                 </td>
               </tr>
@@ -55,4 +63,3 @@ export default function BookingsTable({ bookings }: {
     </div>
   )
 }
-

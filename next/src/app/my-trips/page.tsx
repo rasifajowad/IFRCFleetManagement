@@ -2,6 +2,8 @@ import { prisma } from '@/lib/db'
 import { endTrip, startTrip } from '../actions'
 import { getCurrentUser } from '@/lib/auth'
 
+export const dynamic = 'force-dynamic'
+
 export default async function Page({ searchParams }: { searchParams?: { driverId?: string } }) {
   const me = await getCurrentUser()
   if (!me || me.role !== 'driver') {
@@ -36,7 +38,7 @@ export default async function Page({ searchParams }: { searchParams?: { driverId
 
       <form className="flex items-center gap-3" action="" method="get">
         <label className="text-sm text-slate-600">Driver</label>
-        <select name="driverId" defaultValue={driverId} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300">
+        <select key={`sel-${driverId}`} name="driverId" defaultValue={driverId} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300">
           {drivers.map(d => (
             <option key={d.id} value={d.id}>{d.name}</option>
           ))}

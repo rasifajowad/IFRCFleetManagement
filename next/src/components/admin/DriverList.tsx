@@ -1,4 +1,5 @@
 import { addDriver, removeDriver } from '@/app/actions'
+import FormRefresh from '@/components/FormRefresh'
 
 export default function DriverList({ drivers }: { drivers: { id: string, name: string }[] }) {
   return (
@@ -7,6 +8,7 @@ export default function DriverList({ drivers }: { drivers: { id: string, name: s
       <form action={addDriver} className="flex gap-2 mb-3">
         <input name="name" placeholder="New driver name" className="flex-1 rounded-xl border border-slate-300 px-3 py-2" />
         <button type="submit" className="rounded-xl bg-slate-900 text-white px-3 py-2 text-sm">Add</button>
+        <FormRefresh />
       </form>
       <ul className="space-y-2">
         {drivers.map(d => (
@@ -15,6 +17,7 @@ export default function DriverList({ drivers }: { drivers: { id: string, name: s
             <form action={removeDriver}>
               <input type="hidden" name="driverId" value={d.id} />
               <button className="text-red-600 hover:underline" type="submit">Remove</button>
+              <FormRefresh />
             </form>
           </li>
         ))}
@@ -22,4 +25,3 @@ export default function DriverList({ drivers }: { drivers: { id: string, name: s
     </div>
   )
 }
-

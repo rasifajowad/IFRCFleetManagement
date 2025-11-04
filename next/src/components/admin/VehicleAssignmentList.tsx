@@ -1,4 +1,5 @@
 import { assignVehicleDriver } from '@/app/actions'
+import FormRefresh from '@/components/FormRefresh'
 
 export default function VehicleAssignmentList({ vehicles, drivers }: {
   vehicles: { id: string, name: string, plate: string, assignedDriver?: { id: string, name: string } | null }[]
@@ -15,17 +16,22 @@ export default function VehicleAssignmentList({ vehicles, drivers }: {
               <div className="text-slate-500">{v.plate}</div>
             </div>
             <input type="hidden" name="vehicleId" value={v.id} />
-            <select name="driverId" defaultValue={v.assignedDriver?.id || ''} className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm">
+            <select
+              key={`${v.id}:${v.assignedDriver?.id ?? 'none'}`}
+              name="driverId"
+              defaultValue={v.assignedDriver?.id || ''}
+              className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm"
+            >
               <option value="">Unassigned</option>
               {drivers.map(d => (
                 <option key={d.id} value={d.id}>{d.name}</option>
               ))}
             </select>
             <button className="rounded-xl bg-slate-900 text-white px-3 py-2 text-sm" type="submit">Save</button>
+            <FormRefresh />
           </form>
         ))}
       </div>
     </div>
   )
 }
-

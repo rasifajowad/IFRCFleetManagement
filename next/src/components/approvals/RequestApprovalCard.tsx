@@ -14,7 +14,11 @@ export default function RequestApprovalCard({ req, vehicles, drivers }: {
         <input type="hidden" name="reqId" value={req.id} />
         <label className="block">
           <span className="block text-xs text-slate-600 mb-1">Vehicle</span>
-          <select name="vehicleId" className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-slate-300">
+          <select
+            key={`veh-${req.id}-${vehicleOptions.length}`}
+            name="vehicleId"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-slate-300"
+          >
             {vehicleOptions.map(v => (
               <option key={v.id} value={v.id}>{v.name} - {v.plate}</option>
             ))}
@@ -22,7 +26,11 @@ export default function RequestApprovalCard({ req, vehicles, drivers }: {
         </label>
         <label className="block">
           <span className="block text-xs text-slate-600 mb-1">Driver</span>
-          <select name="driverId" className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-slate-300">
+          <select
+            key={`drv-${req.id}-${drivers.length}`}
+            name="driverId"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-slate-300"
+          >
             {drivers.map((d) => (
               <option key={d.id} value={d.id}>{d.name}</option>
             ))}
@@ -42,4 +50,3 @@ export default function RequestApprovalCard({ req, vehicles, drivers }: {
     </div>
   )
 }
-

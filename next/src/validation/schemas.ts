@@ -54,3 +54,7 @@ export const UpdateBookingStatusSchema = z.object({
 })
 export const DeleteBookingSchema = z.object({ bookingId: z.string().trim().min(1) })
 
+export const UpdateProfileSchema = z.object({
+  name: z.string().trim().min(1),
+  phone: z.string().trim().optional(),
+})

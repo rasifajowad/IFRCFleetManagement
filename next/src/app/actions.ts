@@ -16,6 +16,7 @@ import {
   AssignVehicleDriverSchema,
   UpdateBookingStatusSchema,
   DeleteBookingSchema,
+  UpdateProfileSchema,
 } from "@/validation/schemas"
 
 export async function createRequest(formData: FormData) {
@@ -164,3 +165,16 @@ export async function deleteBooking(formData: FormData) {
   revalidatePath('/schedule')
 }
 
+export async function updateProfile(formData: FormData) {
+  const me = await getCurrentUser()
+  if (!me) return
+  const raw = Object.fromEntries(formData.entries())
+  const parsed = UpdateProfileSchema.safeParse(raw)
+  if (!parsed.success) return
+  await prisma.user.update({ where: { id: me.id }, data: { name: parsed.data.name, phone: parsed.data.phone } })
+  // Revalidate pages that show identity
+  revalidatePath('/profile')
+  revalidatePath('/my-requests')
+  revalidatePath('/my-trips')
+  revalidatePath('/admin')
+}

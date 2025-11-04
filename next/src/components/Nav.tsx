@@ -1,15 +1,21 @@
 import { getCurrentUser } from '@/lib/auth'
+import Image from 'next/image'
 
 export default async function Nav() {
   const me = await getCurrentUser()
   return (
     <header className="border-b bg-white">
       <nav className="mx-auto max-w-6xl px-4 py-3 flex items-center gap-4 text-sm">
+        <a href="/" className="flex items-center gap-2 mr-2" aria-label="Home">
+          <Image src="/logo.svg" alt="IFRC Fleet Management" width={24} height={24} />
+          <span className="font-semibold text-slate-900">IFRC Fleet</span>
+        </a>
         <a className="font-medium" href="/schedule">Schedule</a>
         {me?.role === 'staff' && <a href="/my-requests">My Requests</a>}
         {me?.role === 'officer' && <a href="/requests">Approvals</a>}
         {me?.role === 'driver' && <a href="/my-trips">My Trips</a>}
         {me?.role === 'officer' && <a href="/admin">Admin</a>}
+        {me && <a href="/profile">Profile</a>}
         <div className="ml-auto flex items-center gap-3">
           {me ? (
             <>
@@ -29,4 +35,3 @@ export default async function Nav() {
     </header>
   )
 }
-

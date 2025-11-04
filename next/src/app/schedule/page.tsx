@@ -2,6 +2,8 @@ import { prisma } from '@/lib/db'
 import Timeline from '@/components/schedule/Timeline'
 import { startOfDay, endOfDay, hoursRange, toISODate } from '@/lib/time'
 
+export const dynamic = 'force-dynamic'
+
 export default async function Page({ searchParams }: { searchParams: { d?: string } }) {
   const base = searchParams?.d ? new Date(searchParams.d) : new Date()
   const day = startOfDay(base)
