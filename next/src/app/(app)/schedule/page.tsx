@@ -3,8 +3,8 @@ import { startOfDay, endOfDay, toISODate } from '@/lib/time'
 import SectionHeader from '@/components/aceternity/SectionHeader'
 import { Card, CardContent } from '@/components/ui/card'
 import VehicleDashboard from '@/components/schedule/VehicleDashboard'
-import dynamic from 'next/dynamic'
-const FleetCalendar = dynamic(() => import('@/components/calendar/FleetCalendar'), { ssr: false })
+import FleetCalendar from '@/components/calendar/FleetCalendar'
+
 
 export const dynamic = 'force-dynamic'
 
@@ -78,7 +78,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
             initialDate={toISODate(day)}
             events={bookings.map((b) => ({
               id: b.id,
-              title: `${b.vehicle.name} — ${b.purpose} (${b.status})`,
+              title: `${(b as any).vehicle.name} - ${b.purpose} (${b.status})`,
               start: new Date(b.startTime).toISOString(),
               end: new Date(b.endTime).toISOString(),
               color: b.status === 'InUse' ? '#ef4444' : b.status === 'Booked' ? '#f59e0b' : '#64748b',
@@ -89,3 +89,5 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
     </main>
   )
 }
+
+
