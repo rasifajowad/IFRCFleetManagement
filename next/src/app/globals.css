@@ -123,3 +123,79 @@
   }
 }
 
+/* FullCalendar: IFRC theme overrides */
+.fc-theme-ifrc .fc,
+.fc-theme-ifrc .fc .fc-scrollgrid {
+  border-color: var(--border);
+}
+
+.fc-theme-ifrc .fc .fc-col-header-cell,
+.fc-theme-ifrc .fc .fc-timegrid-axis,
+.fc-theme-ifrc .fc .fc-timegrid-slot {
+  border-color: var(--border);
+}
+
+.fc-theme-ifrc .fc .fc-toolbar-title {
+  font-weight: 600;
+  color: var(--foreground);
+  font-size: 1rem;
+}
+
+.fc-theme-ifrc .fc .fc-button {
+  border-radius: 0.75rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: 1px solid var(--primary);
+  padding: 0.4rem 0.75rem;
+}
+.fc-theme-ifrc .fc .fc-button:hover { opacity: .9; }
+.fc-theme-ifrc .fc .fc-button.fc-button-primary:not(:disabled) {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.fc-theme-ifrc .fc .fc-day-today {
+  background: color-mix(in oklab, var(--primary) 8%, white) !important;
+}
+
+.fc-theme-ifrc .fc .fc-timegrid-now-indicator-line { border-color: var(--ring); }
+.fc-theme-ifrc .fc .fc-timegrid-now-indicator-arrow { border-top-color: var(--ring); }
+
+/* Event appearance */
+.fc-theme-ifrc .fc .fc-event {
+  border: none;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+  overflow: hidden;
+}
+.fc-theme-ifrc .fc .fc-event .fc-evt {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .15rem .5rem;
+}
+.fc-theme-ifrc .fc .fc-event .fc-evt-time { font-variant-numeric: tabular-nums; color: rgba(255,255,255,.95); margin-right: .25rem; }
+.fc-theme-ifrc .fc .fc-event .fc-evt-text { color: rgba(255,255,255,.95); }
+.fc-theme-ifrc .fc .fc-event .fc-evt-badge {
+  margin-left: auto;
+  font-size: .65rem;
+  padding: .1rem .4rem;
+  border-radius: 9999px;
+  background: rgba(255,255,255,.2);
+  color: rgba(255,255,255,.95);
+}
+
+/* Status colors */
+.fc-theme-ifrc .fc .fc-event.fc-status-InUse { background: #ef4444; }
+.fc-theme-ifrc .fc .fc-event.fc-status-Booked { background: #f59e0b; }
+.fc-theme-ifrc .fc .fc-event.fc-status-Completed { background: #64748b; }
+
+/* Grid compactness and label colors */
+.fc-theme-ifrc .fc .fc-timegrid-slot-label { color: var(--muted-foreground); font-size: .75rem; }
+.fc-theme-ifrc .fc .fc-timegrid-slot-minor { border-top-style: dotted; border-top-color: var(--border); }
+
+/* Optional: subtle zebra */
+.fc-theme-ifrc .fc .fc-daygrid-day:nth-child(odd) .fc-daygrid-day-frame { background: rgba(0,0,0,0.01); }
+
+
+

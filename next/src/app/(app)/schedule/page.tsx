@@ -34,6 +34,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
       endLocation: true,
       vehicle: { select: { name: true } },
       requester: { select: { name: true } },
+      driver: { select: { name: true } },
     },
     orderBy: { startTime: 'asc' },
   })
@@ -68,15 +69,19 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
       />
 
       <Card>
-        <CardContent className="p-3">
+        <CardContent className="p-8">
           <FleetCalendar
             initialDate={toISODate(day)}
             events={bookings.map((b) => ({
               id: b.id,
-              title: `${(b as any).vehicle.name} - ${b.purpose} (${b.status})`,
+              title: `${(b as any).vehicle.name} - ${b.purpose}`,
               start: new Date(b.startTime).toISOString(),
               end: new Date(b.endTime).toISOString(),
-              color: b.status === 'InUse' ? '#ef4444' : b.status === 'Booked' ? '#f59e0b' : '#64748b',
+              status: b.status as any,
+              driver: (b as any).driver?.name,
+              requester: (b as any).requester?.name,
+              startLocation: (b as any).startLocation,
+              endLocation: (b as any).endLocation,
             }))}
           />
         </CardContent>

@@ -6,13 +6,13 @@ export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
 }
 
 export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('px-4 pt-4', className)} {...props} />
+  return <div className={cn('px-8 pt-8', className)} {...props} />
 }
 
 export function CardContent({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('px-4 pb-4', className)} {...props} />
+  return <div className={cn('px-8 pb-8', className)} {...props} />
 }
 
 export function CardFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('px-4 pt-4', className)} {...props} />
+  return <div className={cn('px-8 pt-8', className)} {...props} />
 }

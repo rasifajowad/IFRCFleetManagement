@@ -38,7 +38,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     if (asChild && React.isValidElement(children)) {
       const child: any = children
       const childClass = child.props?.className
-      return React.cloneElement(child, { className: twMerge(composed, childClass) })
+      return React.cloneElement(child, { ...rest, className: twMerge(composed, childClass), ref })
     }
     return (
       <button ref={ref} className={composed} {...rest}>
