@@ -70,7 +70,7 @@ export default function VehicleDashboard({ vehicles, bookings }: { vehicles: Veh
             <button key={v.id} onClick={() => setSelected(v.id)} className="text-left">
               <CardContainer containerClassName="py-0" className="w-full h-full">
                 <CardBody className="h-44 w-full bg-red-100 rounded-lg">
-                  <CardItem className="absolute inset-0 rounded-2xl border overflow-hidden" translateZ={10} />
+                  <CardItem className="absolute inset-0 rounded-2xl border overflow-hidden" translateZ={10}>{null}</CardItem>
                   {/* Placeholder image slot */}
                   <CardItem translateZ={12} className="absolute right-2 bottom-2 opacity-80 pointer-events-none">
                     <Image src="/car.svg" alt="Vehicle" width={110} height={60} />
@@ -122,7 +122,7 @@ export default function VehicleDashboard({ vehicles, bookings }: { vehicles: Veh
                   )}
                   {selectedBookings.map((b) => (
                     <TR key={b.id}>
-                      <TD className="whitespace-nowrap">{new Date(b.startTime).toLocaleString()} – {new Date(b.endTime).toLocaleString()}</TD>
+                      <TD className="whitespace-nowrap">{new Date(b.startTime).toLocaleString()} - {new Date(b.endTime).toLocaleString()}</TD>
                       <TD>{b.requester?.name}</TD>
                       <TD>{b.status}</TD>
                       <TD>{b.endLocation || b.purpose}</TD>

@@ -27,7 +27,7 @@ type BookingRow = {
   requester: string
   startTime: Date
   endTime: Date
-  status: 'Booked' | 'InUse' | 'Completed'
+  status: string
 }
 
 function BookingEdit({ row }: { row: BookingRow }) {
@@ -86,7 +86,7 @@ const columns: ColumnDef<BookingRow>[] = [
 ]
 
 export default function BookingsTable({ bookings }: {
-  bookings: { id: string, status: 'Booked' | 'InUse' | 'Completed', startTime: string | Date, endTime: string | Date, vehicle: { name: string }, driver: { name: string }, requester: { name: string } }[]
+  bookings: { id: string, status: string, startTime: string | Date, endTime: string | Date, vehicle: { name: string }, driver: { name: string }, requester: { name: string } }[]
 }) {
   const rows: BookingRow[] = React.useMemo(() => bookings.map(b => ({
     id: b.id,

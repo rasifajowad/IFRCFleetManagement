@@ -21,7 +21,6 @@ export function Calendar(props: CalendarProps) {
       {...props}
       mode={props.mode ?? 'single'}
       className={cn('mx-auto', props.className)}
-      captionLayout={props.captionLayout ?? 'dropdown-buttons'}
       showOutsideDays
       classNames={{ ...defaultClassNames, ...(props as any).classNames }}
     />
