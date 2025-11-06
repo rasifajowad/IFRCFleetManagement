@@ -39,9 +39,24 @@ function LiveBadge({ kind }: { kind: 'requests' | 'myTrips' }) {
 
 function Logo({ open }: { open: boolean }) {
   return (
-    <a href="/" className="flex items-center gap-2 px-2 py-2">
-      <Image src="/logo.svg" alt="IFRC Fleet Management" width={24} height={24} />
-      {open && <span className="font-semibold text-slate-900">IFRC Fleet</span>}
+    <a
+      href="/"
+      aria-label="Home"
+      className={`${open ? 'flex flex-col items-start gap-1' : 'mt-5 mb-10 flex items-center'}`}
+    >
+      <Image
+        src={open ? "/logo.svg" : "/Logo-Squaree-RGB.svg"}
+        alt="IFRC Fleet Management"
+        width={open ? 180 : 42}
+        height={open ? 63 : 42}
+        priority
+      />
+      {open && (
+        <div className="text-2xl font-extrabold tracking-tight px-2 mb-5">
+          <span className="text-red-600">Fleet</span>
+          <span className="text-slate-900">Mate</span>
+        </div>
+      )}
     </a>
   )
 }
@@ -60,9 +75,9 @@ export default function SidebarShell({ children, links, user }: { children: Reac
           <SidebarBody className="justify-between">
             <div className="flex-1 overflow-y-auto">
               <Logo open={open} />
-              <div className="mt-4 flex flex-col gap-1">
+              <div className="mt-2 flex flex-col gap-1">
                 {links.map((l, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
+                  <div key={idx} className="flex px-2 items-center gap-2">
                     <SidebarLink link={l} />
                     {l.href === '/requests' && <LiveBadge kind="requests" />}
                     {l.href === '/my-trips' && <LiveBadge kind="myTrips" />}
