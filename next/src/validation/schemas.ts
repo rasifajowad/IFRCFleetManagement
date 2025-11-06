@@ -43,7 +43,27 @@ export const EndTripSchema = z.object({
   endLocation: v.endLocationType === 'Other' ? (v.endLocationOther || '').trim() : v.endLocationType,
 })).refine((v) => !!v.endLocation, { message: 'location required', path: ['endLocationOther'] })
 
-export const AddDriverSchema = z.object({ name: z.string().trim().min(1) })
+export const AddDriverSchema = z.object({
+  name: z.string().trim().min(1),
+  email: z.string().email().optional(),
+  phone: z.string().optional(),
+  department: z.string().optional(),
+  title: z.string().optional(),
+  location: z.string().optional(),
+  vehicleId: z.string().optional().transform((s) => (s && s.length > 0 ? s : undefined)),
+})
+
+export const AdminAddVehicleSchema = z.object({
+  name: z.string().trim().min(1),
+  plate: z.string().trim().min(1),
+})
+
+export const AdminUpdateVehicleSchema = z.object({
+  vehicleId: z.string().trim().min(1),
+  name: z.string().trim().min(1),
+  plate: z.string().trim().min(1),
+  driverId: z.string().optional().transform((s) => (s && s.length > 0 ? s : undefined)),
+})
 export const RemoveDriverSchema = z.object({ driverId: z.string().trim().min(1) })
 export const AssignVehicleDriverSchema = z.object({
   vehicleId: z.string().trim().min(1),
@@ -57,6 +77,10 @@ export const DeleteBookingSchema = z.object({ bookingId: z.string().trim().min(1
 
 export const UpdateProfileSchema = z.object({
   name: z.string().trim().min(1),
+  avatarUrl: z.preprocess((v) => {
+    const s = (v ?? '').toString().trim()
+    return s.length ? s : undefined
+  }, z.string().url().optional()),
   phone: z.string().optional(),
   department: z.string().optional(),
   title: z.string().optional(),
@@ -69,6 +93,10 @@ export const AdminUpdateUserSchema = z.object({
   id: z.string().trim().min(1),
   name: z.string().trim().min(1),
   email: z.string().email().optional(),
+  avatarUrl: z.preprocess((v) => {
+    const s = (v ?? '').toString().trim()
+    return s.length ? s : undefined
+  }, z.string().url().optional()),
   phone: z.string().optional(),
   department: z.string().optional(),
   title: z.string().optional(),

@@ -82,3 +82,23 @@ export async function approveAndAssign(formData: FormData) {
     const jar = await cookies(); jar.set('flash', JSON.stringify({ type: 'success', message: 'Approved and assigned' }), { path: '/' })
   }
 }
+
+export async function cancelRequest(formData: FormData) {
+  const me = await getCurrentUser()
+  if (!me) {
+    const jar = await cookies(); jar.set('flash', JSON.stringify({ type: 'error', message: 'Not authenticated' }), { path: '/' })
+    return
+  }
+  const reqId = String(formData.get('reqId') || '')
+  if (!reqId) return
+  const req = await prisma.request.findUnique({ where: { id: reqId } })
+  if (!req || req.requesterId !== me.id) return
+  if (req.status !== 'Pending') {
+    const jar = await cookies(); jar.set('flash', JSON.stringify({ type: 'error', message: 'Cannot cancel after approval' }), { path: '/' })
+    return
+  }
+  await prisma.request.delete({ where: { id: reqId } })
+  revalidatePath('/my-requests')
+  revalidatePath('/requests')
+  const jar = await cookies(); jar.set('flash', JSON.stringify({ type: 'success', message: 'Request cancelled' }), { path: '/' })
+}

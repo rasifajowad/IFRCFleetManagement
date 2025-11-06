@@ -21,7 +21,7 @@ export default function SignupForm() {
     <form method="post" action="/api/auth/signup">
       <FieldGroup>
         <FieldSet>
-          <FieldLegend>Account</FieldLegend>
+          <FieldLegend className='mt-4'>Account</FieldLegend>
           <Field>
             <FieldLabel>Name</FieldLabel>
             <input name="name" required className="w-full rounded-xl border border-slate-300 px-3 py-2" />

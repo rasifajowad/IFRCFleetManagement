@@ -1,8 +1,6 @@
 "use client"
 import * as React from 'react'
 import { Clock2Icon } from 'lucide-react'
-import { Calendar } from '@/components/ui/calendar'
-import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Field, FieldLabel, FieldLegend } from '@/components/ui/field'
 
@@ -54,55 +52,56 @@ export default function DateTimeRange({ defaultStart, defaultEnd }: { defaultSta
   }, [startValue, endValue])
 
   return (
-    <div ref={rootRef} className="w-full flex items-start justify-between gap-4">
-      <FieldLegend className="whitespace-nowrap text-left">Date &amp; Time</FieldLegend>
-      <div className="flex-1 flex flex-col items-center">
-        <Card className="w-fit py-4">
-          <CardContent className="px-4">
-            <Calendar mode="single" selected={date} onSelect={setDate} className="bg-transparent p-0 mx-auto" />
-          </CardContent>
-          <CardFooter className="flex flex-col gap-6 border-t px-4 !pt-4">
-            <div className="flex w-full flex-col gap-3">
-              <Field>
-                <FieldLabel htmlFor="req-time-from">Pickup Time</FieldLabel>
-                <div className="relative flex w-full items-center gap-2">
-                  <Clock2Icon className="text-muted-foreground pointer-events-none absolute left-2.5 size-4 select-none" />
-                  <Input
-                    id="req-time-from"
-                    type="time"
-                    step="1"
-                    value={timeFrom}
-                    onChange={(e) => setTimeFrom(e.target.value)}
-                    className="appearance-none pl-8 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-                  />
-                </div>
-              </Field>
-            </div>
-            <div className="flex w-full flex-col gap-3">
-              <Field>
-                <FieldLabel htmlFor="req-time-to">Return Time</FieldLabel>
-                <div className="relative flex w-full items-center gap-2">
-                  <Clock2Icon className="text-muted-foreground pointer-events-none absolute left-2.5 size-4 select-none" />
-                  <Input
-                    id="req-time-to"
-                    type="time"
-                    step="1"
-                    value={timeTo}
-                    onChange={(e) => setTimeTo(e.target.value)}
-                    className="appearance-none pl-8 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-                  />
-                </div>
-              </Field>
-            </div>
-          </CardFooter>
-        </Card>
-        {error && (
-          <p className="mt-2 text-sm text-red-600">{error}</p>
-        )}
-        {/* Hidden inputs to submit in the expected format */}
-        <input type="hidden" name="startTime" value={startValue} />
-        <input type="hidden" name="endTime" value={endValue} />
+    <div ref={rootRef} className="w-full flex flex-col gap-4">
+      <FieldLegend className="text-left">Date &amp; Time</FieldLegend>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Field>
+          <FieldLabel htmlFor="req-date">Date</FieldLabel>
+          <Input
+            id="req-date"
+            type="date"
+            value={dateStr}
+            onChange={(e) => {
+              const val = e.target.value
+              if (!val) return
+              const [y,m,d] = val.split('-').map(Number)
+              setDate(new Date(y, (m || 1) - 1, d || 1))
+            }}
+          />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="req-time-from">Pickup Time</FieldLabel>
+          <div className="relative flex w-full items-center gap-2">
+            <Clock2Icon className="text-muted-foreground pointer-events-none absolute left-2.5 size-4 select-none" />
+            <Input
+              id="req-time-from"
+              type="time"
+              step="60"
+              value={timeFrom}
+              onChange={(e) => setTimeFrom(e.target.value)}
+              className="appearance-none pl-8"
+            />
+          </div>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="req-time-to">Return Time</FieldLabel>
+          <div className="relative flex w-full items-center gap-2">
+            <Clock2Icon className="text-muted-foreground pointer-events-none absolute left-2.5 size-4 select-none" />
+            <Input
+              id="req-time-to"
+              type="time"
+              step="60"
+              value={timeTo}
+              onChange={(e) => setTimeTo(e.target.value)}
+              className="appearance-none pl-8"
+            />
+          </div>
+        </Field>
       </div>
+      {error && <p className="text-sm text-red-600">{error}</p>}
+      {/* Hidden inputs to submit in the expected format */}
+      <input type="hidden" name="startTime" value={startValue} />
+      <input type="hidden" name="endTime" value={endValue} />
     </div>
   )
 }

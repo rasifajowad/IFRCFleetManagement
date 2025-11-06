@@ -14,6 +14,8 @@ import {
   AdminUpdateUserSchema,
   AdminChangeRoleSchema,
   AdminDeleteUserSchema,
+  AdminAddVehicleSchema,
+  AdminUpdateVehicleSchema,
 } from '@/validation/schemas'
 
 export async function addDriver(formData: FormData) {
@@ -22,7 +24,22 @@ export async function addDriver(formData: FormData) {
   const raw = Object.fromEntries(formData.entries())
   const parsed = AddDriverSchema.safeParse(raw)
   if (!parsed.success) return
-  await UserRepo.createDriver(parsed.data.name)
+  const driver = await prisma.user.create({
+    data: {
+      id: `d${Date.now()}`,
+      name: parsed.data.name,
+      role: 'driver' as any,
+      email: parsed.data.email ?? null,
+      phone: parsed.data.phone ?? null,
+      department: parsed.data.department ?? null,
+      title: parsed.data.title ?? null,
+      location: parsed.data.location ?? null,
+      active: true,
+    }
+  })
+  if (parsed.data.vehicleId) {
+    await prisma.vehicle.update({ where: { id: parsed.data.vehicleId }, data: { assignedDriverId: driver.id } })
+  }
   revalidatePath('/admin')
 }
 
@@ -49,6 +66,27 @@ export async function assignVehicleDriver(formData: FormData) {
   const parsed = AssignVehicleDriverSchema.safeParse(raw)
   if (!parsed.success) return
   await VehicleRepo.updateAssignedDriver(parsed.data.vehicleId, parsed.data.driverId ?? null)
+  revalidatePath('/admin')
+}
+
+export async function addVehicle(formData: FormData) {
+  const me = await getCurrentUser()
+  if (!me || me.role !== 'officer') return
+  const raw = Object.fromEntries(formData.entries())
+  const parsed = AdminAddVehicleSchema.safeParse(raw)
+  if (!parsed.success) return
+  await prisma.vehicle.create({ data: { id: `veh${Date.now()}`, name: parsed.data.name, plate: parsed.data.plate } })
+  revalidatePath('/admin')
+}
+
+export async function updateVehicleDetails(formData: FormData) {
+  const me = await getCurrentUser()
+  if (!me || me.role !== 'officer') return
+  const raw = Object.fromEntries(formData.entries())
+  const parsed = AdminUpdateVehicleSchema.safeParse(raw)
+  if (!parsed.success) return
+  const { vehicleId, name, plate, driverId } = parsed.data
+  await prisma.vehicle.update({ where: { id: vehicleId }, data: { name, plate, assignedDriverId: driverId ?? null } })
   revalidatePath('/admin')
 }
 
@@ -130,4 +168,3 @@ export async function adminDeleteUser(formData: FormData) {
   await prisma.user.delete({ where: { id } })
   revalidatePath('/admin/members')
 }
-

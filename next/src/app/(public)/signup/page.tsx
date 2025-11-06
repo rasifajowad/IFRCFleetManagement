@@ -11,7 +11,7 @@ export default async function Page() {
   }
   return (
     <main className="min-h-[90vh] grid place-items-center p-6">
-      <Card className="w-full max-w-md mt-16">
+      <Card className="w-full max-w-md mt-16 mb-16">
         <CardHeader>
           <SectionHeader
             title="Create Account"

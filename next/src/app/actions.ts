@@ -1,4 +1,4 @@
-export { createRequest, approveAndAssign } from '@/actions/requests'
+export { createRequest, approveAndAssign, cancelRequest } from '@/actions/requests'
 export { startTrip, endTrip } from '@/actions/trips'
 export {
   addDriver,
@@ -9,5 +9,7 @@ export {
   adminUpdateUser,
   adminChangeRole,
   adminDeleteUser,
+  addVehicle,
+  updateVehicleDetails,
 } from '@/actions/admin'
-export { updateProfile } from '@/actions/users'
+export { updateProfile, removeAvatar } from '@/actions/users'

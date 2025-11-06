@@ -1,5 +1,6 @@
 import { getCurrentUser } from '@/lib/auth'
-import { IconCalendar, IconUser, IconClipboardList, IconCar, IconShield, IconUsersGroup } from '@tabler/icons-react'
+import { prisma } from '@/lib/db'
+import { IconCalendar, IconUser, IconClipboardList, IconCar, IconShield, IconUsersGroup, IconPlus } from '@tabler/icons-react'
 import Image from 'next/image'
 import React from 'react'
 import SidebarShell from './SidebarShell'
@@ -11,6 +12,7 @@ export default async function AppSidebar({ children }: { children: React.ReactNo
   ]
   if (me) {
     links.push({ label: 'My Requests', href: '/my-requests', icon: <IconClipboardList className="h-5 w-5 text-neutral-700" /> })
+    links.push({ label: 'New Request', href: '/my-requests?new=1', icon: <IconPlus className="h-5 w-5 text-neutral-700" /> })
     if (me.role === 'driver') {
       links.push({ label: 'My Trips', href: '/my-trips', icon: <IconCar className="h-5 w-5 text-neutral-700" /> })
     }
@@ -23,6 +25,15 @@ export default async function AppSidebar({ children }: { children: React.ReactNo
   } else {
     links.push({ label: 'Login', href: '/login', icon: <IconUser className="h-5 w-5 text-neutral-700" /> })
   }
-  const user = me ? { name: me.name, role: String(me.role) } : undefined
-  return <SidebarShell links={links} user={user}>{children}</SidebarShell>
+  let resolvedUser: { name: string; title: string | null; avatarUrl: string | null } | undefined
+  if (me) {
+    const u = await prisma.user.findUnique({ where: { id: me.id }, select: { title: true } })
+    let avatarUrl: string | null = null
+    try {
+      const rows = await prisma.$queryRaw<{ avatarUrl: string | null }[]>`SELECT "avatarUrl" FROM "User" WHERE "id" = ${me.id}`
+      avatarUrl = rows?.[0]?.avatarUrl ?? null
+    } catch {}
+    resolvedUser = { name: me.name, title: u?.title ?? null, avatarUrl }
+  }
+  return <SidebarShell links={links} user={resolvedUser}>{children}</SidebarShell>
 }

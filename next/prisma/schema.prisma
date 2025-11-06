@@ -22,6 +22,7 @@ model User {
   role              Role
   email             String?   @unique
   passwordHash      String?
+  avatarUrl         String?
   createdAt         DateTime  @default(now())
   phone             String?
   department        String?

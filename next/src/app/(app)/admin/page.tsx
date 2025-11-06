@@ -1,7 +1,9 @@
 import { prisma } from '@/lib/db'
 import { getCurrentUser } from '@/lib/auth'
-import DriverList from '@/components/admin/DriverList'
-import VehicleAssignmentList from '@/components/admin/VehicleAssignmentList'
+import DriversTable from '@/components/admin/DriversTable'
+import AssignedVehiclesTable from '@/components/admin/AssignedVehiclesTable'
+import AddVehicleDialog from '@/components/admin/AddVehicleDialog'
+import AddDriverDialog from '@/components/admin/AddDriverDialog'
 import BookingsTable from '@/components/admin/BookingsTable'
 import SectionHeader from '@/components/aceternity/SectionHeader'
 
@@ -21,7 +23,7 @@ export default async function Page() {
       </main>
     )
   }
-  const drivers = await prisma.user.findMany({ where: { role: 'driver' }, orderBy: { name: 'asc' } })
+  const drivers = await prisma.user.findMany({ where: { role: 'driver' }, include: { assignedVehicles: true }, orderBy: { name: 'asc' } })
   const vehicles = await prisma.vehicle.findMany({ include: { assignedDriver: true }, orderBy: { name: 'asc' } })
   const bookings = await prisma.booking.findMany({ include: { vehicle: true, driver: true, requester: true }, orderBy: { startTime: 'desc' } })
 
@@ -29,11 +31,13 @@ export default async function Page() {
     <main className="mx-auto max-w-6xl p-6 space-y-8">
       <SectionHeader title="Admin" subtitle="Manage drivers, vehicle assignments, and bookings" />
 
-      <section className="grid lg:grid-cols-3 gap-6">
-        <DriverList drivers={drivers} />
-        <div className="lg:col-span-2">
-          <VehicleAssignmentList vehicles={vehicles} drivers={drivers} />
+      <section className="space-y-6">
+        <div className="flex items-center justify-end gap-2">
+          <AddDriverDialog vehicles={vehicles} />
+          <AddVehicleDialog />
         </div>
+        <DriversTable drivers={drivers as any} />
+        <AssignedVehiclesTable vehicles={vehicles} drivers={drivers} />
       </section>
 
       <BookingsTable bookings={bookings} />

@@ -61,7 +61,7 @@ function Logo({ open }: { open: boolean }) {
   )
 }
 
-export default function SidebarShell({ children, links, user }: { children: React.ReactNode; links: Array<{ label: string; href: string; icon: React.ReactNode }>; user?: { name: string; role: string } }) {
+export default function SidebarShell({ children, links, user }: { children: React.ReactNode; links: Array<{ label: string; href: string; icon: React.ReactNode }>; user?: { name: string; title?: string | null; avatarUrl?: string | null } }) {
   const pathname = usePathname()
   const hideSidebar = pathname === '/' || pathname === '/login' || pathname === '/signup' || pathname === '/admin/login'
   const [open, setOpen] = React.useState(false)
@@ -88,13 +88,17 @@ export default function SidebarShell({ children, links, user }: { children: Reac
             <div className="mt-4">
               {user && (
                 <div className="mb-2 flex items-center gap-2 rounded-lg px-2 py-2 hover:bg-slate-100">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-200 text-xs text-slate-700">
-                    {user.name.split(' ').map(p => p[0]).join('').slice(0,2).toUpperCase()}
-                  </div>
+                  {user.avatarUrl ? (
+                    <Image src={user.avatarUrl} alt={user.name} width={28} height={28} className="h-7 w-7 rounded-full object-cover" unoptimized />
+                  ) : (
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-200 text-xs text-slate-700">
+                      {user.name.split(' ').map(p => p[0]).join('').slice(0,2).toUpperCase()}
+                    </div>
+                  )}
                   {open && (
                     <div className="leading-tight">
                       <div className="text-sm text-slate-800">{user.name}</div>
-                      <div className="text-xs text-slate-500 capitalize">{user.role}</div>
+                      <div className="text-xs text-slate-500">{user.title?.trim() ? user.title : '-'}</div>
                     </div>
                   )}
                 </div>
