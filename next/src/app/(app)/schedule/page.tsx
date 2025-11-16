@@ -2,8 +2,8 @@ import { prisma } from '@/lib/db'
 import { startOfDay, endOfDay, toISODate } from '@/lib/time'
 import SectionHeader from '@/components/aceternity/SectionHeader'
 import { Card, CardContent } from '@/components/ui/card'
-import VehicleDashboard from '@/components/schedule/VehicleDashboard'
 import FleetCalendar from '@/components/calendar/FleetCalendar'
+import { Button } from '@/components/ui/button'
 
 
 export const dynamic = 'force-dynamic'
@@ -38,11 +38,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
     },
     orderBy: { startTime: 'asc' },
   })
-  const vehicles = await prisma.vehicle.findMany({ include: { assignedDriver: true }, orderBy: { name: 'asc' } })
-
-  const prev = new Date(day); prev.setDate(prev.getDate() - 1)
-  const next = new Date(day); next.setDate(next.getDate() + 1)
-  
 
   return (
     <main className="mx-auto max-w-5xl p-6 space-y-6">
@@ -52,21 +47,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
           <div className="text-xs text-slate-500 mt-1">{toISODate(day)}</div>
         </div>
       </div>
-
-      <VehicleDashboard
-        vehicles={vehicles as any}
-        bookings={bookings.map(b => ({
-          id: b.id,
-          vehicleId: b.vehicleId,
-          startTime: b.startTime as any,
-          endTime: b.endTime as any,
-          status: b.status,
-          requester: { name: (b as any).requester?.name || '' },
-          purpose: b.purpose,
-          startLocation: (b as any).startLocation,
-          endLocation: (b as any).endLocation,
-        }))}
-      />
 
       <Card>
         <CardContent className="p-8">
@@ -86,6 +66,12 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ d
           />
         </CardContent>
       </Card>
+
+      <div className="flex justify-end">
+        <Button asChild size="sm" className="bg-red-600 hover:bg-red-700 text-white">
+          <a href="/schedule/available">Available Vehicles</a>
+        </Button>
+      </div>
     </main>
   )
 }

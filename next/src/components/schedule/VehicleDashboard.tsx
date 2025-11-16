@@ -11,6 +11,10 @@ type Vehicle = {
   name: string
   plate?: string
   assignedDriver?: { id: string; name: string } | null
+  primaryImageUrl?: string | null
+  images?: { url: string }[]
+  modelName?: string | null
+  registrationNumber?: string | null
 }
 
 type Booking = {
@@ -66,6 +70,9 @@ export default function VehicleDashboard({ vehicles, bookings }: { vehicles: Veh
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {vehicles.map((v) => {
           const avail = isAvailable(v.id)
+          const previewImage = v.primaryImageUrl || v.images?.[0]?.url || '/LC70.png'
+          const model = v.modelName || v.name
+          const registration = v.registrationNumber || v.plate
           return (
             <button key={v.id} onClick={() => setSelected(v.id)} className="text-left">
               <CardContainer containerClassName="py-0" className="w-full h-full">
@@ -74,24 +81,24 @@ export default function VehicleDashboard({ vehicles, bookings }: { vehicles: Veh
                   <CardItem className="absolute inset-0 rounded-3xl" translateZ={8}>{null}</CardItem>
 
                   {/* Header */}
-                  <div className="flex items-center justify-between">
-                    <CardItem translateZ={24} className="text-xl font-semibold text-slate-900">
-                      {v.name}
-                    </CardItem>
+                <div className="flex items-center justify-between">
+                  <CardItem translateZ={24} className="text-xl font-semibold text-slate-900">
+                    {model}
+                  </CardItem>
                     <CardItem translateZ={28}>
                       <Badge className={avail ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}>
                         {avail ? 'Available' : 'In Use / Booked'}
                       </Badge>
                     </CardItem>
                   </div>
-                  <CardItem translateZ={16} className="mt-1 block text-slate-600">
-                    {v.plate ? `Plate: ${v.plate}` : 'No plate on file'}
-                  </CardItem>
+                <CardItem translateZ={16} className="mt-1 block text-slate-600">
+                  {registration ? `Reg: ${registration}` : 'No registration'}
+                </CardItem>
 
                   {/* Image block */}
                   <CardItem translateZ={36} className="mt-4 block w-full overflow-hidden rounded-2xl">
                     <div className="relative h-40 w-full">
-                      <Image src="/LC70.png" alt="Vehicle" fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover" priority />
+                      <Image src={previewImage} alt="Vehicle" fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover" priority />
                     </div>
                   </CardItem>
 

@@ -23,12 +23,13 @@ type UserLite = {
 
 export default function MemberEditDialog({ user, drivers }: { user: UserLite; drivers: { id: string; name: string }[] }) {
   const [open, setOpen] = React.useState(false)
+  const contentId = React.useMemo(() => `member-edit-${user.id}`, [user.id])
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" variant="outline">Edit</Button>
       </DialogTrigger>
-      <DialogContent className="max-w-lg">
+      <DialogContent id={contentId} className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Edit member</DialogTitle>
           <DialogDescription>Update member details and role.</DialogDescription>

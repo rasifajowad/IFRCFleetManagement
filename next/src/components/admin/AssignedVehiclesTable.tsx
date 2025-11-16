@@ -1,14 +1,12 @@
 import { prisma } from '@/lib/db'
 import { Button } from '@/components/ui/button'
 import { Table, THead, TBody, TR, TH, TD } from '@/components/ui/table'
-import { Select } from '@/components/ui/select'
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import React from 'react'
-import { updateVehicleDetails } from '@/app/actions'
+import { VehicleEditDialog, VehicleInfo, DriverOption } from '@/components/vehicle/VehicleEditDialog'
 
 export default async function AssignedVehiclesTable({ vehicles, drivers }: {
-  vehicles: { id: string, name: string, plate: string, assignedDriver?: { id: string, name: string } | null }[]
-  drivers: { id: string, name: string }[]
+  vehicles: VehicleInfo[]
+  drivers: DriverOption[]
 }) {
   // availability: vehicle is available if not currently InUse
   const inUse = await prisma.booking.findMany({ where: { status: 'InUse' }, select: { vehicleId: true } })
@@ -61,43 +59,12 @@ export default async function AssignedVehiclesTable({ vehicles, drivers }: {
   )
 }
 
-function EditVehicleDialog({ vehicle, drivers }: { vehicle: { id: string, name: string, plate: string, assignedDriver?: { id: string, name: string } | null }, drivers: { id: string, name: string }[] }) {
+function EditVehicleDialog({ vehicle, drivers }: { vehicle: VehicleInfo; drivers: DriverOption[] }) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">Edit</Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Edit vehicle</DialogTitle>
-        </DialogHeader>
-        <form action={updateVehicleDetails} className="space-y-3">
-          <input type="hidden" name="vehicleId" value={vehicle.id} />
-          <div className="grid grid-cols-2 gap-3">
-            <label className="text-sm">
-              <span className="block text-slate-600 mb-1">Name</span>
-              <input name="name" defaultValue={vehicle.name} className="w-full rounded border px-2 py-1" />
-            </label>
-            <label className="text-sm">
-              <span className="block text-slate-600 mb-1">Plate</span>
-              <input name="plate" defaultValue={vehicle.plate} className="w-full rounded border px-2 py-1" />
-            </label>
-          </div>
-          <label className="text-sm block">
-            <span className="block text-slate-600 mb-1">Assigned driver</span>
-            <Select name="driverId" defaultValue={vehicle.assignedDriver?.id || ''}>
-              <option value="">Unassigned</option>
-              {drivers.map(d => (
-                <option key={d.id} value={d.id}>{d.name}</option>
-              ))}
-            </Select>
-          </label>
-          <DialogFooter>
-            <Button type="submit">Save</Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+    <VehicleEditDialog
+      vehicle={vehicle}
+      drivers={drivers}
+      trigger={<Button variant="outline" size="sm">Edit</Button>}
+    />
   )
 }
-

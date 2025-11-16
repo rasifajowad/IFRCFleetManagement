@@ -11,5 +11,8 @@ export {
   adminDeleteUser,
   addVehicle,
   updateVehicleDetails,
+  addDocument,
+  deleteDocument,
 } from '@/actions/admin'
 export { updateProfile, removeAvatar } from '@/actions/users'
+export { reportBug } from '@/actions/feedback'

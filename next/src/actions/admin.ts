@@ -1,7 +1,7 @@
 "use server"
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser, hashPassword } from '@/lib/auth'
 import { BookingRepo } from '@/repositories/bookingRepo'
 import { VehicleRepo } from '@/repositories/vehicleRepo'
 import { UserRepo } from '@/repositories/userRepo'
@@ -17,30 +17,63 @@ import {
   AdminAddVehicleSchema,
   AdminUpdateVehicleSchema,
 } from '@/validation/schemas'
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
+import { randomUUID } from 'node:crypto'
+import { cookies } from 'next/headers'
 
 export async function addDriver(formData: FormData) {
   const me = await getCurrentUser()
-  if (!me || me.role !== 'officer') return
+  const jar = await cookies()
+  if (!me || me.role !== 'officer') {
+    jar.set('flash', JSON.stringify({ type: 'error', message: 'Officer access required' }), { path: '/' })
+    return
+  }
   const raw = Object.fromEntries(formData.entries())
   const parsed = AddDriverSchema.safeParse(raw)
-  if (!parsed.success) return
+  if (!parsed.success) {
+    jar.set('flash', JSON.stringify({ type: 'error', message: 'Invalid driver data' }), { path: '/' })
+    return
+  }
+  const { confirmPassword: _confirmPassword, password, vehicleId, ...profile } = parsed.data
+  const email = profile.email
+  const exists = await prisma.user.findUnique({ where: { email } })
+  if (exists) {
+    jar.set('flash', JSON.stringify({ type: 'error', message: 'Email already registered' }), { path: '/' })
+    return
+  }
+  const passwordHash = await hashPassword(password)
+  const normalize = (value?: string | null) => {
+    if (value === undefined || value === null) return null
+    const trimmed = value.trim()
+    return trimmed.length ? trimmed : null
+  }
   const driver = await prisma.user.create({
     data: {
       id: `d${Date.now()}`,
-      name: parsed.data.name,
+      name: profile.name,
       role: 'driver' as any,
-      email: parsed.data.email ?? null,
-      phone: parsed.data.phone ?? null,
-      department: parsed.data.department ?? null,
-      title: parsed.data.title ?? null,
-      location: parsed.data.location ?? null,
+      email,
+      passwordHash,
+      phone: normalize(profile.phone),
+      department: normalize(profile.department),
+      title: normalize(profile.title),
+      location: normalize(profile.location),
+      driverLicenseNo: profile.driverLicenseNo,
+      driverLicenseExpiry: profile.driverLicenseExpiry,
       active: true,
     }
   })
-  if (parsed.data.vehicleId) {
-    await prisma.vehicle.update({ where: { id: parsed.data.vehicleId }, data: { assignedDriverId: driver.id } })
+  if (vehicleId) {
+    await prisma.vehicle.update({ where: { id: vehicleId }, data: { assignedDriverId: driver.id } })
   }
   revalidatePath('/admin')
+  revalidatePath('/vehicle-info')
+  if (vehicleId) {
+    revalidatePath(`/vehicle-info/${vehicleId}`)
+  }
+  revalidatePath('/schedule')
+  jar.set('flash', JSON.stringify({ type: 'success', message: 'Driver added' }), { path: '/' })
 }
 
 export async function removeDriver(formData: FormData) {
@@ -67,6 +100,8 @@ export async function assignVehicleDriver(formData: FormData) {
   if (!parsed.success) return
   await VehicleRepo.updateAssignedDriver(parsed.data.vehicleId, parsed.data.driverId ?? null)
   revalidatePath('/admin')
+  revalidatePath('/vehicle-info')
+  revalidatePath('/schedule')
 }
 
 export async function addVehicle(formData: FormData) {
@@ -75,8 +110,110 @@ export async function addVehicle(formData: FormData) {
   const raw = Object.fromEntries(formData.entries())
   const parsed = AdminAddVehicleSchema.safeParse(raw)
   if (!parsed.success) return
-  await prisma.vehicle.create({ data: { id: `veh${Date.now()}`, name: parsed.data.name, plate: parsed.data.plate } })
+  const {
+    modelName,
+    registrationNumber,
+    organizationName,
+    engineNumber,
+    engineCapacity,
+    chassisNumber,
+    yearManufacture,
+    deployedArea,
+    contractExpiry,
+    registrationExpiry,
+    ifrcCode,
+    driverId,
+  } = parsed.data
+
+  const data: any = {
+    id: `veh${Date.now()}`,
+    name: modelName,
+    plate: registrationNumber,
+    modelName,
+    registrationNumber,
+    organizationName: organizationName || null,
+    engineNumber: engineNumber || null,
+    engineCapacity: engineCapacity || null,
+    chassisNumber: chassisNumber || null,
+    yearManufacture: yearManufacture ?? null,
+    deployedArea: deployedArea || null,
+    contractExpiry: contractExpiry ?? null,
+    registrationExpiry: registrationExpiry ?? null,
+    ifrcCode: ifrcCode || null,
+    assignedDriverId: driverId ?? null,
+  }
+
+  const imageFiles = formData.getAll('images').filter((file): file is File => file instanceof File && file.size > 0)
+  const imageUrls: string[] = []
+  if (imageFiles.length > 0) {
+    try {
+      const dir = path.resolve(process.cwd(), 'public', 'vehicles')
+      await fs.mkdir(dir, { recursive: true })
+      for (const file of imageFiles) {
+        const arrayBuffer = await file.arrayBuffer()
+        const buffer = Buffer.from(arrayBuffer)
+        const ext = (file.type && file.type.split('/')[1]) || 'jpg'
+        const fname = `${data.id}-${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`
+        await fs.writeFile(path.join(dir, fname), buffer)
+        imageUrls.push(`/vehicles/${fname}`)
+      }
+    } catch (err) {
+      console.error('Failed uploading vehicle images', err)
+    }
+  }
+
+  if (imageUrls.length > 0) data.primaryImageUrl = imageUrls[0]
+
+  await prisma.vehicle.create({ data })
+  if (imageUrls.length > 0) {
+    await prisma.vehicleImage.createMany({ data: imageUrls.map((url) => ({ vehicleId: data.id, url })) })
+  }
   revalidatePath('/admin')
+  revalidatePath('/vehicle-info')
+}
+
+export async function addDocument(formData: FormData) {
+  const me = await getCurrentUser()
+  if (!me || me.role !== 'officer') return
+  const name = String(formData.get('name') ?? '').trim()
+  if (!name) return
+  const detail = String(formData.get('detail') ?? '').trim()
+  const file = formData.get('file')
+  if (!(file instanceof File) || file.size === 0) return
+  try {
+    const dir = path.resolve(process.cwd(), 'public', 'docs')
+    await fs.mkdir(dir, { recursive: true })
+    const ext = (file.type && file.type.split('/')[1]) || 'dat'
+    const fname = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`
+    const buffer = Buffer.from(await file.arrayBuffer())
+    await fs.writeFile(path.join(dir, fname), buffer)
+    const id = randomUUID()
+    await prisma.$executeRaw`INSERT INTO "Document" ("id","name","detail","fileUrl","fileName") VALUES (${id}, ${name}, ${detail || null}, ${`/docs/${fname}`}, ${fname})`
+    revalidatePath('/docs')
+    revalidatePath('/admin')
+  } catch (err) {
+    console.error('Failed saving document', err)
+  }
+}
+
+export async function deleteDocument(formData: FormData) {
+  const me = await getCurrentUser()
+  if (!me || me.role !== 'officer') return
+  const id = String(formData.get('id') ?? '').trim()
+  if (!id) return
+  try {
+    const rows = await prisma.$queryRaw<{ fileUrl: string | null }[]>`SELECT "fileUrl" FROM "Document" WHERE "id" = ${id}`
+    const fileUrl = rows[0]?.fileUrl
+    await prisma.$executeRaw`DELETE FROM "Document" WHERE "id" = ${id}`
+    if (fileUrl) {
+      const localPath = path.resolve(process.cwd(), 'public', fileUrl.replace(/^\//, ''))
+      try { await fs.unlink(localPath) } catch {}
+    }
+    revalidatePath('/docs')
+    revalidatePath('/admin')
+  } catch (err) {
+    console.error('Failed deleting document', err)
+  }
 }
 
 export async function updateVehicleDetails(formData: FormData) {
@@ -85,9 +222,70 @@ export async function updateVehicleDetails(formData: FormData) {
   const raw = Object.fromEntries(formData.entries())
   const parsed = AdminUpdateVehicleSchema.safeParse(raw)
   if (!parsed.success) return
-  const { vehicleId, name, plate, driverId } = parsed.data
-  await prisma.vehicle.update({ where: { id: vehicleId }, data: { name, plate, assignedDriverId: driverId ?? null } })
+  const {
+    vehicleId,
+    modelName,
+    registrationNumber,
+    driverId,
+    ifrcCode,
+    organizationName,
+    engineNumber,
+    engineCapacity,
+    chassisNumber,
+    yearManufacture,
+    deployedArea,
+    contractExpiry,
+    registrationExpiry,
+  } = parsed.data
+
+  const imageFiles = formData.getAll('images').filter((file): file is File => file instanceof File && file.size > 0)
+  const imageUrls: string[] = []
+  if (imageFiles.length > 0) {
+    try {
+      const dir = path.resolve(process.cwd(), 'public', 'vehicles')
+      await fs.mkdir(dir, { recursive: true })
+      for (const file of imageFiles) {
+        const arrayBuffer = await file.arrayBuffer()
+        const buffer = Buffer.from(arrayBuffer)
+        const ext = (file.type && file.type.split('/')[1]) || 'jpg'
+        const fname = `${vehicleId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
+        await fs.writeFile(path.join(dir, fname), buffer)
+        imageUrls.push(`/vehicles/${fname}`)
+      }
+    } catch (err) {
+      console.error('Failed uploading vehicle images', err)
+    }
+  }
+
+  const optionalText = (v?: string | null) => (v && v.trim().length > 0 ? v : null)
+  const updateData: any = {
+    name: modelName,
+    plate: registrationNumber,
+    modelName,
+    registrationNumber,
+    assignedDriverId: driverId ?? null,
+    ifrcCode: optionalText(ifrcCode),
+    organizationName: optionalText(organizationName),
+    engineNumber: optionalText(engineNumber),
+    engineCapacity: optionalText(engineCapacity),
+    chassisNumber: optionalText(chassisNumber),
+    deployedArea: optionalText(deployedArea),
+  }
+  if (yearManufacture !== undefined) updateData.yearManufacture = yearManufacture ?? null
+  if (contractExpiry !== undefined) updateData.contractExpiry = contractExpiry ?? null
+  if (registrationExpiry !== undefined) updateData.registrationExpiry = registrationExpiry ?? null
+  if (imageUrls.length > 0) {
+    updateData.primaryImageUrl = imageUrls[0]
+  }
+
+  await prisma.vehicle.update({ where: { id: vehicleId }, data: updateData })
+  if (imageUrls.length > 0) {
+    await prisma.vehicleImage.createMany({ data: imageUrls.map(url => ({ vehicleId, url })) })
+  }
   revalidatePath('/admin')
+  revalidatePath('/vehicle-info')
+  revalidatePath(`/vehicle-info/${vehicleId}`)
+  revalidatePath('/schedule')
 }
 
 export async function updateBookingStatus(formData: FormData) {
@@ -168,3 +366,4 @@ export async function adminDeleteUser(formData: FormData) {
   await prisma.user.delete({ where: { id } })
   revalidatePath('/admin/members')
 }
+
