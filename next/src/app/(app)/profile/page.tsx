@@ -53,7 +53,7 @@ export default async function Page() {
                 </div>
               ) : (
                 <div className="flex h-40 w-40 items-center justify-center rounded-full bg-slate-200 text-4xl font-bold text-slate-700 ring-8 ring-white shadow">
-                  {user?.name?.split(' ').map(p => p[0]).join('').slice(0,2).toUpperCase()}
+                  {user?.name?.split(' ').map((p: string) => p[0]).join('').slice(0,2).toUpperCase()}
                 </div>
               )}
             </div>
