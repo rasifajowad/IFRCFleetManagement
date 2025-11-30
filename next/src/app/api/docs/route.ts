@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const id = req.nextUrl.searchParams.get('id')?.trim() || ''
   if (!id) return new Response('Missing id', { status: 400 })
   try {
-    const rows = await prisma.$queryRaw<{ fileData: Buffer | null; mimeType: string | null; fileName: string | null }[]>`
+    const rows = await prisma.$queryRaw<{ fileData: Uint8Array | null; mimeType: string | null; fileName: string | null }[]>`
       SELECT "fileData","mimeType","fileName"
       FROM "Document"
       WHERE "id" = ${id}
@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
     }
     const mime = row.mimeType || 'application/octet-stream'
     const fileName = row.fileName || 'document'
-    const body = row.fileData instanceof Uint8Array ? row.fileData : new Uint8Array(row.fileData as ArrayBuffer)
+    const body = row.fileData instanceof Uint8Array ? row.fileData : Uint8Array.from(row.fileData as any)
     return new Response(body, {
       status: 200,
       headers: {
