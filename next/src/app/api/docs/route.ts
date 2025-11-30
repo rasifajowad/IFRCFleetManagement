@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
     const mime = row.mimeType || 'application/octet-stream'
     const fileName = row.fileName || 'document'
     const body = row.fileData instanceof Uint8Array ? row.fileData : Uint8Array.from(row.fileData as any)
-    return new Response(body, {
+    return new Response(body.buffer, {
       status: 200,
       headers: {
         'Content-Type': mime,
