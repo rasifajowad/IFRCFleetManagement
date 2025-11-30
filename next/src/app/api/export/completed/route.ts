@@ -26,7 +26,7 @@ export async function GET() {
     'Booking ID','Request ID','Vehicle','Driver','Requester','Purpose','Start Time','End Time','Status','Actual Start','Actual End','Start Location','End Location','Odometer Start','Odometer End','Notes','Override'
   ]
 
-  const lines = [header, ...rows.map(b => [
+  const lines = [header, ...rows.map((b: (typeof rows)[number]) => [
     b.id,
     b.requestId,
     `${b.vehicle.name} (${b.vehicle.plate})`,

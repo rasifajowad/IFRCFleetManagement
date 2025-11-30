@@ -38,7 +38,7 @@ export default async function Page() {
       <section className="space-y-6">
         <div className="flex flex-wrap items-center justify-end gap-2">
           <AddDriverDialog vehicles={vehicles} />
-          <VehicleAddButton drivers={drivers.map(d => ({ id: d.id, name: d.name }))} />
+          <VehicleAddButton drivers={drivers.map((d: typeof drivers[number]) => ({ id: d.id, name: d.name }))} />
           <DocumentUploadDialog />
           <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
             <a href="/api/admin/bug-reports">Bug Reports ({bugCount})</a>

@@ -9,8 +9,8 @@ export async function GET(_req: NextRequest) {
   }
   const reports = await prisma.$queryRaw<{ name: string; designation: string; message: string; createdAt: Date }[]>`SELECT "name","designation","message","createdAt" FROM "BugReport" ORDER BY "createdAt" DESC`
   const header = 'Name,Designation,Message,Created At'
-  const rows = reports.map(r => [sanitize(r.name), sanitize(r.designation), sanitize(r.message), r.createdAt.toISOString()])
-  const csv = [header, ...rows.map(cols => cols.map(c => `"${c.replace(/"/g, '""')}"`).join(','))].join('\n')
+  const rows = reports.map((r: (typeof reports)[number]) => [sanitize(r.name), sanitize(r.designation), sanitize(r.message), r.createdAt.toISOString()])
+  const csv = [header, ...rows.map((cols: string[]) => cols.map((c: string) => `"${c.replace(/"/g, '""')}"`).join(','))].join('\n')
   return new Response(csv, {
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',

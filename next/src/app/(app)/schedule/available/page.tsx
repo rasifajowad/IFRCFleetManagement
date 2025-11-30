@@ -51,7 +51,7 @@ export default async function AvailableVehiclesPage() {
       </div>
       <VehicleDashboard
         vehicles={vehicles as any}
-        bookings={bookings.map(b => ({
+        bookings={bookings.map((b: (typeof bookings)[number]) => ({
           id: b.id,
           vehicleId: b.vehicleId,
           startTime: b.startTime as any,

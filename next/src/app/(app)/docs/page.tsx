@@ -34,7 +34,7 @@ export default async function DocsPage() {
         <CardContent className="p-4">
           {/* Mobile cards */}
           <div className="md:hidden space-y-3">
-            {documents.map((doc) => (
+            {documents.map((doc: DocRow) => (
               <div key={doc.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -81,7 +81,7 @@ export default async function DocsPage() {
                 </TR>
               </THead>
               <TBody>
-                {documents.map((doc) => (
+                {documents.map((doc: DocRow) => (
                   <TR key={doc.id}>
                     <TD className="font-medium text-slate-900">{doc.name}</TD>
                     <TD className="text-slate-600">{doc.detail || '-'}</TD>

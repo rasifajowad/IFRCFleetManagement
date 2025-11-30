@@ -79,7 +79,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
                   </TR>
                 </THead>
                 <TBody>
-                  {pendingReqs.map(r => (
+                  {pendingReqs.map((r: (typeof pendingReqs)[number]) => (
                     <TR key={r.id}>
                       <TD className="font-medium text-slate-800">{r.purpose}</TD>
                       <TD>{new Date(r.startTime).toLocaleString()}</TD>
@@ -124,7 +124,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
                   </TR>
                 </THead>
                 <TBody>
-                  {history.map(b => (
+                  {history.map((b: (typeof history)[number]) => (
                     <TR key={b.id}>
                       <TD className="font-medium text-slate-800">{b.vehicle.name}</TD>
                       <TD>{b.driver.name}</TD>

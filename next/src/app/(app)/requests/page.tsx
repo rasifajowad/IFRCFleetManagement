@@ -30,7 +30,7 @@ export default async function Page() {
 
       <div className="space-y-4">
         {pending.length === 0 && <div className="text-slate-500 text-sm">No pending requests</div>}
-        {pending.map((req) => (
+        {pending.map((req: (typeof pending)[number]) => (
           <RequestApprovalCard key={req.id} req={req} vehicles={vehicles} drivers={drivers} />
         ))}
       </div>

@@ -75,7 +75,7 @@ export default async function VehicleDetailPage({ params }: { params: Promise<{ 
               </div>
               {vehicle.images && vehicle.images.length > 1 && (
                 <div className="grid grid-cols-3 gap-2">
-                  {vehicle.images.slice(1).map((img) => (
+                  {vehicle.images.slice(1).map((img: (typeof vehicle.images)[number]) => (
                     <div key={img.id} className="relative h-20 w-full overflow-hidden rounded-xl border">
                       <Image src={img.url} alt="Vehicle" fill className="object-cover" sizes="120px" />
                     </div>

@@ -139,7 +139,7 @@ export default async function Page() {
                   </TR>
                 </THead>
                 <TBody>
-                  {bookings.map(b => (
+                  {bookings.map((b: (typeof bookings)[number]) => (
                     <TR key={b.id}>
                       <TD className="font-medium text-slate-800">{b.vehicle.name}</TD>
                       <TD>{b.purpose}</TD>

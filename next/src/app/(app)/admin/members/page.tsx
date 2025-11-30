@@ -22,7 +22,7 @@ export default async function Page() {
   }
 
   const users = await prisma.user.findMany({ orderBy: { name: 'asc' } })
-  const drivers = users.filter(u => u.role === 'driver')
+  const drivers = users.filter((u: typeof users[number]) => u.role === 'driver')
 
   return (
     <main className="mx-auto max-w-6xl p-6 space-y-6">

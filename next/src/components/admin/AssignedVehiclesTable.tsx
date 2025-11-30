@@ -10,7 +10,7 @@ export default async function AssignedVehiclesTable({ vehicles, drivers }: {
 }) {
   // availability: vehicle is available if not currently InUse
   const inUse = await prisma.booking.findMany({ where: { status: 'InUse' }, select: { vehicleId: true } })
-  const inUseSet = new Set(inUse.map(b => b.vehicleId))
+  const inUseSet = new Set(inUse.map((b: (typeof inUse)[number]) => b.vehicleId))
   // current odometer: max(odometerEnd) from completed bookings
   const odometers: Record<string, number | null> = {}
   await Promise.all(vehicles.map(async (v) => {

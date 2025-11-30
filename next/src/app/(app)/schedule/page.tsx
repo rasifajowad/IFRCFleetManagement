@@ -53,7 +53,7 @@ export default async function Page({ searchParams }: { searchParams?: { d?: stri
     orderBy: { startTime: 'asc' },
   })
 
-  const agendaBookings = bookings.map((b) => ({
+  const agendaBookings = bookings.map((b: (typeof bookings)[number]) => ({
     id: b.id,
     startTime: new Date(b.startTime).toISOString(),
     endTime: new Date(b.endTime).toISOString(),
@@ -100,7 +100,7 @@ export default async function Page({ searchParams }: { searchParams?: { d?: stri
         <CardContent className="p-8">
           <FleetCalendar
             initialDate={toLocalISODate(day)}
-            events={bookings.map((b) => ({
+            events={bookings.map((b: (typeof bookings)[number]) => ({
               id: b.id,
               title: `${(b as any).vehicle.name} - ${b.purpose}`,
               start: new Date(b.startTime).toISOString(),

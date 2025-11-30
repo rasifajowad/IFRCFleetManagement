@@ -42,7 +42,7 @@ export default async function Page() {
         {bookings.length === 0 && (
           <div className="text-sm text-slate-500">No trips to show.</div>
         )}
-        {bookings.map((b) => (
+        {bookings.map((b: (typeof bookings)[number]) => (
           <div key={b.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
