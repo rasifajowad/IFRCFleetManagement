@@ -109,7 +109,7 @@ function MobileNav({ links, user, open, onClose }: { links: Array<{ label: strin
 export default function SidebarShell({ children, links, user }: { children: React.ReactNode; links: Array<{ label: string; href: string; icon: React.ReactNode }>; user?: { name: string; title?: string | null; avatarUrl?: string | null } }) {
   const pathname = usePathname()
   const hideSidebar = pathname === '/' || pathname === '/login' || pathname === '/signup' || pathname === '/admin/login'
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = React.useState(true)
   const [mobileOpen, setMobileOpen] = React.useState(false)
   if (hideSidebar) {
     return <div className="min-h-screen bg-zinc-50">{children}</div>
@@ -124,10 +124,10 @@ export default function SidebarShell({ children, links, user }: { children: Reac
         <IconMenu2 className="h-5 w-5" />
       </button>
 
-      <div className="hidden md:block flex-shrink-0">
+      <div className="hidden md:block flex-shrink-0 md:sticky md:top-0 md:h-screen">
         <Sidebar open={open} setOpen={setOpen}>
-          <SidebarBody className="justify-between">
-            <div className="flex-1 overflow-y-auto">
+          <SidebarBody className="h-full justify-between overflow-hidden">
+            <div className="flex-1 overflow-y-auto pr-1">
               <Logo open={open} />
               <div className="mt-2 flex flex-col gap-1">
                 {links.map((l, idx) => (

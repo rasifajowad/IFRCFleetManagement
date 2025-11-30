@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { deleteDocument } from '@/app/actions'
 import DocumentEditDialog from '@/components/docs/DocumentEditDialog'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300
 
 type DocRow = { id: string; name: string; detail: string | null; fileName: string | null }
 
