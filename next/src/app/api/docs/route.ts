@@ -19,9 +19,9 @@ export async function GET(req: NextRequest) {
     }
     const mime = row.mimeType || 'application/octet-stream'
     const fileName = row.fileName || 'document'
-    const bytes = row.fileData instanceof Uint8Array ? row.fileData : Uint8Array.from(row.fileData as any)
-    const blob = new Blob([bytes], { type: mime })
-    return new Response(blob, {
+    const bytes = row.fileData instanceof Uint8Array ? row.fileData : new Uint8Array(row.fileData as ArrayBuffer)
+    const arrayBuffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)
+    return new Response(arrayBuffer as ArrayBuffer, {
       status: 200,
       headers: {
         'Content-Type': mime,
