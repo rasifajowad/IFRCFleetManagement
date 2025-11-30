@@ -13,6 +13,7 @@ export {
   updateVehicleDetails,
   addDocument,
   deleteDocument,
+  updateDocument,
 } from '@/actions/admin'
 export { updateProfile, removeAvatar } from '@/actions/users'
 export { reportBug } from '@/actions/feedback'

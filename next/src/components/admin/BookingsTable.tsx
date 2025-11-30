@@ -125,16 +125,16 @@ export default function BookingsTable({ bookings }: {
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-      <div className="mb-3 flex items-center gap-3">
+      <div className="mb-3 flex flex-wrap items-center gap-3">
         <h2 className="font-medium text-slate-800">Bookings</h2>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex w-full flex-wrap items-center gap-2 sm:w-auto">
           <Input
             placeholder="Search bookings..."
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
-            className="w-56"
+            className="w-full min-w-[220px] sm:w-56"
           />
-          <a href="/api/export/completed" className="rounded-xl bg-slate-900 text-white px-3 py-2 text-sm">Export Completed Trips</a>
+          <a href="/api/export/completed" className="whitespace-nowrap rounded-xl bg-slate-900 text-white px-3 py-2 text-sm">Export Completed Trips</a>
         </div>
       </div>
 

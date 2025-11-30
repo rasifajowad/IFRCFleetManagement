@@ -181,14 +181,14 @@ export async function addDocument(formData: FormData) {
   const file = formData.get('file')
   if (!(file instanceof File) || file.size === 0) return
   try {
-    const dir = path.resolve(process.cwd(), 'public', 'docs')
-    await fs.mkdir(dir, { recursive: true })
-    const ext = (file.type && file.type.split('/')[1]) || 'dat'
-    const fname = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`
-    const buffer = Buffer.from(await file.arrayBuffer())
-    await fs.writeFile(path.join(dir, fname), buffer)
     const id = randomUUID()
-    await prisma.$executeRaw`INSERT INTO "Document" ("id","name","detail","fileUrl","fileName") VALUES (${id}, ${name}, ${detail || null}, ${`/docs/${fname}`}, ${fname})`
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const mimeType = file.type || 'application/octet-stream'
+    const fileName = file.name || `${id}.bin`
+    // ensure columns exist (safe if already added)
+    await prisma.$executeRawUnsafe(`ALTER TABLE "Document" ADD COLUMN IF NOT EXISTS "fileData" bytea`)
+    await prisma.$executeRawUnsafe(`ALTER TABLE "Document" ADD COLUMN IF NOT EXISTS "mimeType" text`)
+    await prisma.$executeRaw`INSERT INTO "Document" ("id","name","detail","fileUrl","fileName","fileData","mimeType") VALUES (${id}, ${name}, ${detail || null}, ${`/api/docs?id=${id}`}, ${fileName}, ${buffer}, ${mimeType})`
     revalidatePath('/docs')
     revalidatePath('/admin')
   } catch (err) {
@@ -202,17 +202,62 @@ export async function deleteDocument(formData: FormData) {
   const id = String(formData.get('id') ?? '').trim()
   if (!id) return
   try {
-    const rows = await prisma.$queryRaw<{ fileUrl: string | null }[]>`SELECT "fileUrl" FROM "Document" WHERE "id" = ${id}`
-    const fileUrl = rows[0]?.fileUrl
     await prisma.$executeRaw`DELETE FROM "Document" WHERE "id" = ${id}`
-    if (fileUrl) {
-      const localPath = path.resolve(process.cwd(), 'public', fileUrl.replace(/^\//, ''))
-      try { await fs.unlink(localPath) } catch {}
-    }
     revalidatePath('/docs')
     revalidatePath('/admin')
   } catch (err) {
     console.error('Failed deleting document', err)
+  }
+}
+
+export async function updateDocument(formData: FormData) {
+  const me = await getCurrentUser()
+  const jar = await cookies()
+  if (!me || me.role !== 'officer') {
+    jar.set('flash', JSON.stringify({ type: 'error', message: 'Officer access required' }), { path: '/' })
+    return
+  }
+  const id = String(formData.get('id') ?? '').trim()
+  const name = String(formData.get('name') ?? '').trim()
+  if (!id || !name) {
+    jar.set('flash', JSON.stringify({ type: 'error', message: 'Name is required' }), { path: '/' })
+    return
+  }
+  const detailRaw = String(formData.get('detail') ?? '').trim()
+  const file = formData.get('file')
+  try {
+    await prisma.$executeRawUnsafe(`ALTER TABLE "Document" ADD COLUMN IF NOT EXISTS "fileData" bytea`)
+    await prisma.$executeRawUnsafe(`ALTER TABLE "Document" ADD COLUMN IF NOT EXISTS "mimeType" text`)
+    if (file instanceof File && file.size > 0) {
+      const buffer = Buffer.from(await file.arrayBuffer())
+      const mimeType = file.type || 'application/octet-stream'
+      const fileName = file.name || `${id}.bin`
+      const updated = await prisma.$executeRaw`
+        UPDATE "Document"
+        SET "name"=${name}, "detail"=${detailRaw || null}, "fileData"=${buffer}, "mimeType"=${mimeType}, "fileName"=${fileName}, "fileUrl"=${`/api/docs?id=${id}`}
+        WHERE "id"=${id}
+      `
+      if (!updated) {
+        jar.set('flash', JSON.stringify({ type: 'error', message: 'Document not found' }), { path: '/' })
+        return
+      }
+    } else {
+      const updated = await prisma.$executeRaw`
+        UPDATE "Document"
+        SET "name"=${name}, "detail"=${detailRaw || null}
+        WHERE "id"=${id}
+      `
+      if (!updated) {
+        jar.set('flash', JSON.stringify({ type: 'error', message: 'Document not found' }), { path: '/' })
+        return
+      }
+    }
+    revalidatePath('/docs')
+    revalidatePath('/admin')
+    jar.set('flash', JSON.stringify({ type: 'success', message: 'Document updated' }), { path: '/' })
+  } catch (err) {
+    console.error('Failed updating document', err)
+    jar.set('flash', JSON.stringify({ type: 'error', message: 'Failed to update document' }), { path: '/' })
   }
 }
 

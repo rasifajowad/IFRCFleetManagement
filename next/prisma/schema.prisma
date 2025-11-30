@@ -86,6 +86,8 @@ model Document {
   detail    String?
   fileUrl   String
   fileName  String
+  mimeType  String?
+  fileData  Bytes?
   createdAt DateTime @default(now())
 }
 

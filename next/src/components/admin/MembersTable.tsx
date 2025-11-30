@@ -102,10 +102,15 @@ export default function MembersTable({ users, drivers }: { users: any[]; drivers
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-      <div className="mb-3 flex items-center gap-3">
+      <div className="mb-3 flex flex-wrap items-center gap-3">
         <h2 className="font-medium text-slate-800">Members</h2>
-        <div className="ml-auto">
-          <Input placeholder="Search members..." value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} className="w-56" />
+        <div className="ml-auto w-full sm:w-auto">
+          <Input
+            placeholder="Search members..."
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="w-full min-w-[220px] sm:w-56"
+          />
         </div>
       </div>
       <div className="overflow-x-auto">
