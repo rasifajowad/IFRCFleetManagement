@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import crypto from 'node:crypto'
-import { PrismaClient, Role } from '../src/generated/prisma/client'
+import { PrismaClient, Role } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -60,4 +60,3 @@ main()
     await prisma.$disconnect()
     process.exit(1)
   })
-
